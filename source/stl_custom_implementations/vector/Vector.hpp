@@ -108,7 +108,7 @@ void Vector<T>::resize(size_t newCapacity)
 
     T* newData = new T[newCapacity];
 
-    for (size_t i = 0; i < sizeOfData; i++) newData[i] = std::move(data[i]);
+    for (size_t i = 0; i < sizeOfData; i++) newData[i] = data[i];
 
     delete[] data;
     data = newData;
