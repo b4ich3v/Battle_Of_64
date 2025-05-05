@@ -178,7 +178,11 @@ MyString MyString::substr(size_t from, size_t to) const
     if (!data || from > to || to > size()) throw std::out_of_range("String substr indices");
         
     size_t sizeOfStr = to - from;
-    MyString result(sizeOfStr * 2);
+    MyString result;
+
+    result.capacity = 8;
+    while (result.capacity < sizeOfStr + 1) result.capacity *= 2;
+    result.data = new char[result.capacity];
 
     const char* ptr = data + from;
     strncpy(result.data, ptr, sizeOfStr);
