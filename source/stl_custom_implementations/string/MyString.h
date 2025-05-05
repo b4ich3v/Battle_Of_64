@@ -2,6 +2,8 @@
 #include <iostream>
 #pragma once
 
+constexpr int MAX_SIZE_BUFFER = 1024;
+
 class MyString
 {
 private:
@@ -43,7 +45,7 @@ public:
 
 	char& operator [] (size_t index);
 
-	const MyString& substr(size_t from, size_t to) const;
+	MyString substr(size_t from, size_t to) const;
 
 	bool empty() const;
 
