@@ -1,15 +1,15 @@
-#include "Queue.hpp"
+#include "MyQueue.hpp"
 #include <iostream>
 #include <algorithm>
 #pragma once
 
 template<class T, class P = int>
 
-class PriorityQueue 
+class MyPriorityQueue
 {
 private:
 
-    struct Node 
+    struct Node
     {
 
         P key;
@@ -18,13 +18,13 @@ private:
         int height = 1;
         Node* left = nullptr;
         Node* right = nullptr;
-       
+
         explicit Node(const T& element, const P& priority);
-       
+
     };
 
     Node* root = nullptr;
-    size_t totalSize = 0;   
+    size_t totalSize = 0;
 
     int height(Node* node) const;
 
@@ -50,23 +50,23 @@ private:
 
     void free();
 
-    void copyFrom(const PriorityQueue& other);
+    void copyFrom(const MyPriorityQueue& other);
 
-    void moveTo(PriorityQueue&& other);
+    void moveTo(MyPriorityQueue&& other);
 
 public:
 
-    PriorityQueue();
+    MyPriorityQueue();
 
-    PriorityQueue(const PriorityQueue& other);
+    MyPriorityQueue(const MyPriorityQueue& other);
 
-    PriorityQueue(PriorityQueue&& other) noexcept;
+    MyPriorityQueue(MyPriorityQueue&& other) noexcept;
 
-    PriorityQueue& operator = (const PriorityQueue& other);
+    MyPriorityQueue& operator = (const MyPriorityQueue& other);
 
-    PriorityQueue& operator = (PriorityQueue&& other) noexcept;
+    MyPriorityQueue& operator = (MyPriorityQueue&& other) noexcept;
 
-    ~PriorityQueue();
+    ~MyPriorityQueue();
 
     void push(const T& element, const P& priority);
 
@@ -82,12 +82,12 @@ public:
 
 template<class T, class P>
 
-PriorityQueue<T, P>::PriorityQueue(): 
+MyPriorityQueue<T, P>::MyPriorityQueue() :
     root(nullptr), totalSize(0) {}
 
 template<class T, class P>
 
-PriorityQueue<T, P>::~PriorityQueue() 
+MyPriorityQueue<T, P>::~MyPriorityQueue()
 {
 
     clear(root);
@@ -96,7 +96,7 @@ PriorityQueue<T, P>::~PriorityQueue()
 
 template<class T, class P>
 
-PriorityQueue<T, P>::Node::Node(const T& element, const P& priority): 
+MyPriorityQueue<T, P>::Node::Node(const T& element, const P& priority) :
     key(priority)
 {
 
@@ -106,7 +106,7 @@ PriorityQueue<T, P>::Node::Node(const T& element, const P& priority):
 
 template<class T, class P>
 
-int PriorityQueue<T, P>::height(Node* node) const 
+int MyPriorityQueue<T, P>::height(Node* node) const
 {
 
     return node ? node->height : 0;
@@ -115,7 +115,7 @@ int PriorityQueue<T, P>::height(Node* node) const
 
 template<class T, class P>
 
-int PriorityQueue<T, P>::balanceFactor(Node* node) const 
+int MyPriorityQueue<T, P>::balanceFactor(Node* node) const
 {
 
     return node ? height(node->left) - height(node->right) : 0;
@@ -124,7 +124,7 @@ int PriorityQueue<T, P>::balanceFactor(Node* node) const
 
 template<class T, class P>
 
-void PriorityQueue<T, P>::updateHeight(Node* node) 
+void MyPriorityQueue<T, P>::updateHeight(Node* node)
 {
 
     node->height = 1 + std::max(height(node->left), height(node->right));
@@ -133,7 +133,7 @@ void PriorityQueue<T, P>::updateHeight(Node* node)
 
 template<class T, class P>
 
-typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::rotateRight(Node* y) 
+typename MyPriorityQueue<T, P>::Node* MyPriorityQueue<T, P>::rotateRight(Node* y)
 {
 
     Node* x = y->left;
@@ -149,7 +149,7 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::rotateRight(Node* y)
 
 template<class T, class P>
 
-typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::rotateLeft(Node* x)
+typename MyPriorityQueue<T, P>::Node* MyPriorityQueue<T, P>::rotateLeft(Node* x)
 {
 
     Node* y = x->right;
@@ -165,7 +165,7 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::rotateLeft(Node* x)
 
 template<class T, class P>
 
-typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::balance(Node* node)
+typename MyPriorityQueue<T, P>::Node* MyPriorityQueue<T, P>::balance(Node* node)
 {
 
     updateHeight(node);
@@ -178,7 +178,7 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::balance(Node* node)
         return rotateRight(node);
 
     }
-    if (bf < -1) 
+    if (bf < -1)
     {
 
         if (balanceFactor(node->right) > 0) node->right = rotateRight(node->right);
@@ -192,7 +192,7 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::balance(Node* node)
 
 template<class T, class P>
 
-typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::insert(Node* node, const P& key, const T& element)
+typename MyPriorityQueue<T, P>::Node* MyPriorityQueue<T, P>::insert(Node* node, const P& key, const T& element)
 {
 
     if (!node)
@@ -203,9 +203,9 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::insert(Node* node, cons
 
     }
 
-    if (key < node->key) node->left = insert(node->left, key, element);    
+    if (key < node->key) node->left = insert(node->left, key, element);
     else if (key > node->key) node->right = insert(node->right, key, element);
-    else 
+    else
     {
 
         node->q.push(element);
@@ -221,7 +221,7 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::insert(Node* node, cons
 
 template<class T, class P>
 
-typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::findMax(Node* node) const
+typename MyPriorityQueue<T, P>::Node* MyPriorityQueue<T, P>::findMax(Node* node) const
 {
 
     while (node->right) node = node->right;
@@ -231,17 +231,17 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::findMax(Node* node) con
 
 template<class T, class P>
 
-typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::remove(Node* node, const P& key)
+typename MyPriorityQueue<T, P>::Node* MyPriorityQueue<T, P>::remove(Node* node, const P& key)
 {
 
     if (!node) return nullptr;
 
     if (key < node->key) node->left = remove(node->left, key);
     else if (key > node->key) node->right = remove(node->right, key);
-    else 
+    else
     {
 
-        if (!node->left || !node->right) 
+        if (!node->left || !node->right)
         {
 
             Node* temp = node->left ? node->left : node->right;
@@ -250,7 +250,7 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::remove(Node* node, cons
             return temp;
 
         }
-        else 
+        else
         {
 
             Node* pred = findMax(node->left);
@@ -268,7 +268,7 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::remove(Node* node, cons
 
 template<class T, class P>
 
-void PriorityQueue<T, P>::clear(Node* node) 
+void MyPriorityQueue<T, P>::clear(Node* node)
 {
     if (!node) return;
 
@@ -280,7 +280,7 @@ void PriorityQueue<T, P>::clear(Node* node)
 
 template<class T, class P>
 
-void PriorityQueue<T, P>::push(const T& element, const P& priority) 
+void MyPriorityQueue<T, P>::push(const T& element, const P& priority)
 {
 
     root = insert(root, priority, element);
@@ -289,7 +289,7 @@ void PriorityQueue<T, P>::push(const T& element, const P& priority)
 
 template<class T, class P>
 
-void PriorityQueue<T, P>::pop() 
+void MyPriorityQueue<T, P>::pop()
 {
 
     if (empty()) throw std::runtime_error("pop from empty PriorityQueue");
@@ -304,7 +304,7 @@ void PriorityQueue<T, P>::pop()
 
 template<class T, class P>
 
-const T& PriorityQueue<T, P>::top() const 
+const T& MyPriorityQueue<T, P>::top() const
 {
 
     if (empty()) throw std::runtime_error("top from empty PriorityQueue");
@@ -314,7 +314,7 @@ const T& PriorityQueue<T, P>::top() const
 
 template<class T, class P>
 
-bool PriorityQueue<T, P>::empty() const 
+bool MyPriorityQueue<T, P>::empty() const
 {
 
     return totalSize == 0;
@@ -323,7 +323,7 @@ bool PriorityQueue<T, P>::empty() const
 
 template<class T, class P>
 
-size_t PriorityQueue<T, P>::size() const 
+size_t MyPriorityQueue<T, P>::size() const
 {
 
     return totalSize;
@@ -332,13 +332,13 @@ size_t PriorityQueue<T, P>::size() const
 
 template<class T, class P>
 
-typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::cloneNode(Node* node)
+typename MyPriorityQueue<T, P>::Node* MyPriorityQueue<T, P>::cloneNode(Node* node)
 {
 
     if (!node) return nullptr;
 
     Node* newNode = new Node(node->q.front(), node->key);
-    newNode->q = node->q;        
+    newNode->q = node->q;
     newNode->height = node->height;
 
     newNode->left = cloneNode(node->left);
@@ -350,7 +350,7 @@ typename PriorityQueue<T, P>::Node* PriorityQueue<T, P>::cloneNode(Node* node)
 
 template<class T, class P>
 
-void PriorityQueue<T, P>::free() 
+void MyPriorityQueue<T, P>::free()
 {
 
     clear(root);
@@ -361,7 +361,7 @@ void PriorityQueue<T, P>::free()
 
 template<class T, class P>
 
-void PriorityQueue<T, P>::copyFrom(const PriorityQueue& other) 
+void MyPriorityQueue<T, P>::copyFrom(const MyPriorityQueue& other)
 {
 
     free();
@@ -372,7 +372,7 @@ void PriorityQueue<T, P>::copyFrom(const PriorityQueue& other)
 
 template<class T, class P>
 
-void PriorityQueue<T, P>::moveTo(PriorityQueue&& other)  
+void MyPriorityQueue<T, P>::moveTo(MyPriorityQueue&& other)
 {
 
     free();
@@ -386,7 +386,7 @@ void PriorityQueue<T, P>::moveTo(PriorityQueue&& other)
 
 template<class T, class P>
 
-PriorityQueue<T, P>::PriorityQueue(const PriorityQueue& other) 
+MyPriorityQueue<T, P>::MyPriorityQueue(const MyPriorityQueue& other)
 {
 
     copyFrom(other);
@@ -395,7 +395,7 @@ PriorityQueue<T, P>::PriorityQueue(const PriorityQueue& other)
 
 template<class T, class P>
 
-PriorityQueue<T, P>::PriorityQueue(PriorityQueue&& other) noexcept 
+MyPriorityQueue<T, P>::MyPriorityQueue(MyPriorityQueue&& other) noexcept
 {
 
     moveTo(std::move(other));
@@ -404,10 +404,10 @@ PriorityQueue<T, P>::PriorityQueue(PriorityQueue&& other) noexcept
 
 template<class T, class P>
 
-PriorityQueue<T, P>& PriorityQueue<T, P>::operator = (const PriorityQueue& other)
+MyPriorityQueue<T, P>& MyPriorityQueue<T, P>::operator = (const MyPriorityQueue& other)
 {
 
-    if (this != &other) 
+    if (this != &other)
     {
 
         free();
@@ -421,10 +421,10 @@ PriorityQueue<T, P>& PriorityQueue<T, P>::operator = (const PriorityQueue& other
 
 template<class T, class P>
 
-PriorityQueue<T, P>& PriorityQueue<T, P>::operator = (PriorityQueue&& other) noexcept 
+MyPriorityQueue<T, P>& MyPriorityQueue<T, P>::operator = (MyPriorityQueue&& other) noexcept
 {
 
-    if (this != &other) 
+    if (this != &other)
     {
 
         free();
