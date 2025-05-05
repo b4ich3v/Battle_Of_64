@@ -249,7 +249,7 @@ size_t Vector<T>::size() const
 
 template <class T>
 
-std::ostream& operator<<(std::ostream& os, const Vector<T>& v) 
+std::ostream& operator << (std::ostream& os, const Vector<T>& v) 
 {
 
     os << '[';
@@ -270,7 +270,7 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& v)
 
 template <class T>
 
-std::istream& operator>>(std::istream& is, Vector<T>& v)
+std::istream& operator >> (std::istream& is, Vector<T>& v)
 {
 
     size_t newSize;
