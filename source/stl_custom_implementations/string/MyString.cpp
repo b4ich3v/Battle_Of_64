@@ -67,12 +67,13 @@ MyString::MyString(const char* data)
 
     if (!data) throw std::runtime_error("Nullptr");
 
-    size_t len = strlen(data);
+    size_t sizeOfStr = strlen(data);
     this->capacity = 8;
     this->data = new char[capacity];
 
-    while (capacity < len + 1) resize(capacity * 2);
+    while (this->capacity < sizeOfStr + 1) this->capacity *= 2;
 
+    this->data = new char[capacity];
     strncpy(this->data, data, strlen(data));
     this->data[strlen(data)] = '\0';
 
