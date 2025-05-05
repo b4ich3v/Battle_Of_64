@@ -41,9 +41,13 @@ public:
 
 	T& operator [] (size_t index);
 
-	friend std::ostream& operator << (std::ostream& os, const Vector& v);
+    template<class U>
 
-	friend std::istream& operator >> (std::istream& is, Vector& v);
+	friend std::ostream& operator << (std::ostream& os, const Vector<U>& v);
+
+    template<class U>
+
+	friend std::istream& operator >> (std::istream& is, Vector<U>& v);
 
 	void pop_back();
 
