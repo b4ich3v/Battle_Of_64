@@ -1,13 +1,13 @@
-#include "PriorityQueue.hpp"
+#include "MyPriorityQueue.hpp"
 #include "MyString.h"
 
-int main() 
+int main()
 {
 
 	try
 	{
 
-        PriorityQueue<MyString, int> pq1;
+        MyPriorityQueue<MyString, int> pq1;
         pq1.push("A", 5);
         pq1.push("B", 10);
         pq1.push("C", 5);
@@ -20,7 +20,9 @@ int main()
 
         }
 
-        PriorityQueue<double, int> pq2;
+        std::cout<<std::endl;
+
+        MyPriorityQueue<double, int> pq2;
         pq2.push(3.14, 3);
         pq2.push(5.7, 2);
         pq2.push(1.0, 1);
