@@ -41,11 +41,11 @@ public:
 
 	T& operator [] (size_t index);
 
-    template<class U>
+        template<class U>
 
 	friend std::ostream& operator << (std::ostream& os, const Vector<U>& v);
 
-    template<class U>
+        template<class U>
 
 	friend std::istream& operator >> (std::istream& is, Vector<U>& v);
 
