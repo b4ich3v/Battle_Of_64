@@ -104,9 +104,10 @@ template <class T>
 void Vector<T>::resize(size_t newCapacity) 
 {
 
+    if (newCapacity <= capacity) return;
     if (newCapacity < 1) newCapacity = 1;
 
-    T* newData = new T[newCapacity];
+    T* newData = new T[newCapacity] {};
 
     for (size_t i = 0; i < sizeOfData; i++) newData[i] = data[i];
 
@@ -118,8 +119,14 @@ void Vector<T>::resize(size_t newCapacity)
 
 template <class T>
 
-Vector<T>::Vector():
-    data(new T[capacity]), sizeOfData(0) {}
+Vector<T>::Vector() 
+{
+
+    capacity = 8;
+    sizeOfData = 0;
+    data = new T[capacity]{};
+
+}
 
 template <class T>
 
@@ -152,7 +159,7 @@ Vector<T>::Vector(Vector&& other) noexcept
 
 template <class T>
 
-Vector<T>& Vector<T>::operator=(const Vector& other)
+Vector<T>& Vector<T>::operator = (const Vector& other)
 {
 
     if (this != &other) 
@@ -281,8 +288,10 @@ std::istream& operator >> (std::istream& is, Vector<T>& v)
     if (!(is >> newSize)) return is;
 
     v.free();
+    v.capacity = 8;
+    v.data = new T[v.capacity]{};
 
-    if (newSize > v.capacity) v.resize(newSize);
+    while (newSize > v.capacity) v.resize(v.capacity * 2);
     v.sizeOfData = newSize;
 
     for (size_t i = 0; i < newSize; i++) is >> v.data[i];
