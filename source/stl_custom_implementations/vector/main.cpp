@@ -1,10 +1,10 @@
 #include <iostream>
-#include "Vector.hpp"
+#include "MyVector.hpp"
 
-int main() 
+int main()
 {
 
-    Vector<int> v;
+    MyVector<int> v;
     std::cout  << v.empty() << std::endl;
 
     for (int i = 1; i <= 5; i++)
@@ -17,14 +17,14 @@ int main()
     std::cout << v << std::endl;
     std::cout << v.size() << std::endl << std::endl;
 
-    Vector<int> copy = v;
+    MyVector<int> copy = v;
     std::cout << copy << std::endl;
 
-    Vector<int> moved = std::move(v);
+    MyVector<int> moved = std::move(v);
     std::cout << moved << std::endl;
     std::cout << v.empty() << std::endl << std::endl;
 
-    try 
+    try
     {
 
         std::cout << moved[2] << std::endl;
@@ -32,7 +32,7 @@ int main()
         std::cout << moved << std::endl;
 
     }
-    catch (const std::out_of_range& e) 
+    catch (const std::out_of_range& e)
     {
 
         std::cout << e.what() << std::endl;
@@ -40,11 +40,10 @@ int main()
     }
     std::cout << std::endl;
 
-    Vector<int> inputVec;
-    std::cin >> inputVec;  
+    MyVector<int> inputVec;
+    std::cin >> inputVec;
     std::cout << inputVec << std::endl;
 
     return 0;
 
 }
-
