@@ -69,7 +69,6 @@ MyString::MyString(const char* data)
 
     size_t sizeOfStr = strlen(data);
     this->capacity = 8;
-    this->data = new char[capacity];
 
     while (this->capacity < sizeOfStr + 1) this->capacity *= 2;
 
