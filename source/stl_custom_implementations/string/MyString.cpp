@@ -65,7 +65,13 @@ MyString::MyString(size_t capacity)
 MyString::MyString(const char* data)
 {
 
-    while (capacity < strlen(data)) resize(capacity * 2);
+    if (!data) throw std::runtime_error("Nullptr");
+
+    size_t len = strlen(data);
+    this->capacity = 8;
+    this->data = new char[capacity];
+
+    while (capacity < len + 1) resize(capacity * 2);
 
     strncpy(this->data, data, strlen(data));
     this->data[strlen(data)] = '\0';
@@ -166,7 +172,7 @@ char& MyString::operator [] (size_t index)
 
 }
 
-const MyString& MyString::substr(size_t from, size_t to) const
+MyString MyString::substr(size_t from, size_t to) const
 {
 
     if (!data || from > to || to > size()) throw std::out_of_range("String substr indices");
@@ -206,12 +212,14 @@ std::ostream& operator << (std::ostream& os, const MyString& str)
 std::istream& operator >> (std::istream& is, MyString& str) 
 {
 
-    char buffer[1024];
-    std::cin >> buffer;
+    char buffer[MAX_SIZE_BUFFER];
+    is >> buffer;
 
     str.free();
-    str.data = new char[strlen(buffer) + 1];
-    str.capacity = strlen(buffer) * 2;
+    str.capacity = 8;
+    while (str.capacity < strlen(buffer) + 1) str.capacity *= 2;
+
+    str.data = new char[str.capacity];
     strncpy(str.data, buffer, strlen(buffer));
     str.data[strlen(buffer)] = '\0';
 
