@@ -13,7 +13,7 @@ private:
     {
 
         P key;
-        Queue<T> q;
+        MyQueue<T> q;
 
         int height = 1;
         Node* left = nullptr;
