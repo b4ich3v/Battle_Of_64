@@ -3,7 +3,7 @@
 
 template <class T>
 
-class Vector 
+class MyVector 
 {
 private:
 
@@ -15,27 +15,27 @@ public:
 
 	void free();
 
-	void copyFrom(const Vector& other);
+	void copyFrom(const MyVector& other);
 
-	void moveTo(Vector&& other);
+	void moveTo(MyVector&& other);
 
 	void resize(size_t newCapacity);
 
 public:
 
-	Vector();
+	MyVector();
 
-	Vector(const T* data, size_t sizeOfData);
+	MyVector(const T* data, size_t sizeOfData);
 
-	Vector(const Vector& other);
+	MyVector(const MyVector& other);
 
-	Vector(Vector&& other) noexcept;
+	MyVector(MyVector&& other) noexcept;
 
-	Vector& operator = (const Vector& other);
+	MyVector& operator = (const MyVector& other);
 
-	Vector& operator = (Vector&& other) noexcept;
+	MyVector& operator = (MyVector&& other) noexcept;
 
-	~Vector();
+	~MyVector();
 
 	const T& operator [] (size_t index) const;
 
@@ -43,11 +43,11 @@ public:
 
     template<class U>
 
-	friend std::ostream& operator << (std::ostream& os, const Vector<U>& v);
+	friend std::ostream& operator << (std::ostream& os, const MyVector<U>& v);
 
     template<class U>
 
-	friend std::istream& operator >> (std::istream& is, Vector<U>& v);
+	friend std::istream& operator >> (std::istream& is, MyVector<U>& v);
 
 	void pop_back();
 
@@ -61,7 +61,7 @@ public:
 
 template <class T>
 
-void Vector<T>::free()
+void MyVector<T>::free()
 {
 
     delete[] data;
@@ -73,7 +73,7 @@ void Vector<T>::free()
 
 template <class T>
 
-void Vector<T>::copyFrom(const Vector& other)
+void MyVector<T>::copyFrom(const MyVector& other)
 {
 
     data = new T[other.capacity];
@@ -86,7 +86,7 @@ void Vector<T>::copyFrom(const Vector& other)
 
 template <class T>
 
-void Vector<T>::moveTo(Vector&& other)
+void MyVector<T>::moveTo(MyVector&& other)
 {
 
     data = other.data;
@@ -101,7 +101,7 @@ void Vector<T>::moveTo(Vector&& other)
 
 template <class T>
 
-void Vector<T>::resize(size_t newCapacity) 
+void MyVector<T>::resize(size_t newCapacity) 
 {
 
     if (newCapacity <= capacity) return;
@@ -119,7 +119,7 @@ void Vector<T>::resize(size_t newCapacity)
 
 template <class T>
 
-Vector<T>::Vector() 
+MyVector<T>::MyVector() 
 {
 
     capacity = 8;
@@ -130,7 +130,7 @@ Vector<T>::Vector()
 
 template <class T>
 
-Vector<T>::Vector(const T* arr, size_t size)
+MyVector<T>::MyVector(const T* arr, size_t size)
     : data(nullptr), sizeOfData(size), capacity(size > 8 ? size : 8) 
 {
 
@@ -141,7 +141,7 @@ Vector<T>::Vector(const T* arr, size_t size)
 
 template <class T>
 
-Vector<T>::Vector(const Vector& other) 
+MyVector<T>::MyVector(const MyVector& other) 
 {
 
     copyFrom(other);
@@ -150,7 +150,7 @@ Vector<T>::Vector(const Vector& other)
 
 template <class T>
 
-Vector<T>::Vector(Vector&& other) noexcept
+MyVector<T>::MyVector(MyVector&& other) noexcept
 {
 
     moveTo(std::move(other));
@@ -159,7 +159,7 @@ Vector<T>::Vector(Vector&& other) noexcept
 
 template <class T>
 
-Vector<T>& Vector<T>::operator = (const Vector& other)
+MyVector<T>& MyVector<T>::operator = (const MyVector& other)
 {
 
     if (this != &other) 
@@ -176,7 +176,7 @@ Vector<T>& Vector<T>::operator = (const Vector& other)
 
 template <class T>
 
-Vector<T>& Vector<T>::operator = (Vector&& other) noexcept 
+MyVector<T>& MyVector<T>::operator = (MyVector&& other) noexcept 
 {
 
     if (this != &other) 
@@ -193,7 +193,7 @@ Vector<T>& Vector<T>::operator = (Vector&& other) noexcept
 
 template <class T>
 
-Vector<T>::~Vector()
+MyVector<T>::~MyVector()
 {
 
     delete[] data;
@@ -202,7 +202,7 @@ Vector<T>::~Vector()
 
 template <class T>
 
-const T& Vector<T>::operator[](size_t index) const 
+const T& MyVector<T>::operator[](size_t index) const 
 {
 
     if (index < 0 || index >= sizeOfData) throw std::out_of_range("Vector index out of range");
@@ -212,7 +212,7 @@ const T& Vector<T>::operator[](size_t index) const
 
 template <class T>
 
-T& Vector<T>::operator[](size_t index)
+T& MyVector<T>::operator[](size_t index)
 {
 
     if (index < 0 || index >= sizeOfData) throw std::out_of_range("Vector index out of range");
@@ -222,7 +222,7 @@ T& Vector<T>::operator[](size_t index)
 
 template <class T>
 
-void Vector<T>::pop_back() 
+void MyVector<T>::pop_back() 
 {
 
     if (empty()) throw std::out_of_range("pop_back() on empty Vector");
@@ -232,7 +232,7 @@ void Vector<T>::pop_back()
 
 template <class T>
 
-void Vector<T>::push_back(const T& element)
+void MyVector<T>::push_back(const T& element)
 {
 
     if (sizeOfData >= capacity) resize(capacity * 2);
@@ -242,7 +242,7 @@ void Vector<T>::push_back(const T& element)
 
 template <class T>
 
-bool Vector<T>::empty() const 
+bool MyVector<T>::empty() const 
 {
 
     return sizeOfData == 0;
@@ -251,7 +251,7 @@ bool Vector<T>::empty() const
 
 template <class T>
 
-size_t Vector<T>::size() const 
+size_t MyVector<T>::size() const 
 {
 
     return sizeOfData;
@@ -260,7 +260,7 @@ size_t Vector<T>::size() const
 
 template <class T>
 
-std::ostream& operator << (std::ostream& os, const Vector<T>& v) 
+std::ostream& operator << (std::ostream& os, const MyVector<T>& v) 
 {
 
     os << '[';
@@ -281,7 +281,7 @@ std::ostream& operator << (std::ostream& os, const Vector<T>& v)
 
 template <class T>
 
-std::istream& operator >> (std::istream& is, Vector<T>& v)
+std::istream& operator >> (std::istream& is, MyVector<T>& v)
 {
 
     size_t newSize;
