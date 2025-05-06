@@ -38,6 +38,21 @@ Board::Board(): table(), history()
 
 }
 
+Board::~Board() 
+{
+
+    free();
+
+}
+
+Board& Board::instance()
+{
+
+    static Board inst;
+    return inst;
+
+}
+
 bool Board::isValid(const Position& position) const
 {
 
@@ -117,6 +132,42 @@ void Board::setupInitialPosition()
         set({ 1,currentColIndex }, new Pawn(Color::BLACK));
 
     }
+
+}
+
+void Board::free()
+{
+    
+    for (size_t currentRowIndex = 0; currentRowIndex < table.size(); currentRowIndex++)
+    {
+
+        for (size_t currentColIndex = 0; currentColIndex < table[currentRowIndex].size(); ++currentColIndex)
+        {
+
+            delete table[currentRowIndex][currentColIndex];
+            table[currentRowIndex][currentColIndex] = nullptr;
+
+        }
+
+    }
+    
+    for (size_t i = 0; i < history.size(); ++i) 
+    {
+
+        if (history[i].captured) 
+        {
+
+            delete history[i].captured;
+            history[i].captured = nullptr;
+
+        }
+
+    }
+    
+    table.clear();
+    history.clear();
+    castleKS.clear();
+    castleQS.clear();
 
 }
 
