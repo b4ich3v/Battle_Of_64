@@ -14,7 +14,7 @@ Move::Move(Position f, Position t,
     SpecialMove s,FigureType p): 
     from(f), to(t), special(s), promotionType(p) {}
 
-void Move::execute(Board& board) 
+void Move::execute(Board& board) const
 {
 
     Figure* movingFigure = board.at(from);
@@ -109,7 +109,7 @@ void Move::execute(Board& board)
 
 }
 
-void Move::undo(Board& board) 
+void Move::undo(Board& board) const
 {
 
     auto entry = board.popHistory();
