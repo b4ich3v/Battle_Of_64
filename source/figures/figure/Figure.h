@@ -1,5 +1,6 @@
 #include "Position.h"
 #include "MyVector.hpp"
+#include "MyPair.hpp"
 #pragma once
 
 enum class Color: uint8_t
