@@ -1,6 +1,6 @@
 #pragma once
 
-template<class T1, class T2>
+template<class T1 = int, class T2 = int>
 
 struct Pair
 {
