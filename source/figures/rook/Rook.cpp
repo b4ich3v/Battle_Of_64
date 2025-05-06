@@ -1,0 +1,32 @@
+#include "Rook.h"
+
+Rook::Rook(Color color):
+    SlidingFigure(color, FigureType::ROOK) {}
+
+MyVector<Position> Rook::generateMoves(const Board& board, const Position& from) const
+{
+
+    static const MyVector<std::pair<int, int>> dirs = []
+    {
+
+        MyVector<std::pair<int, int>> directions;
+
+        directions.push_back(std::make_pair(1, 0));
+        directions.push_back(std::make_pair(-1, 0));
+        directions.push_back(std::make_pair(0, 1));
+        directions.push_back(std::make_pair(0, -1));
+
+        return directions;
+
+    }();
+
+    return generateSliding(board, from, dirs);
+
+}
+
+char Rook::symbol() const
+{
+
+    return (color == Color::WHITE ? 'R' : 'r');
+
+}
