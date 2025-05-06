@@ -6,7 +6,7 @@
 int main() 
 {
 
-    Board board;
+    Board& board = Board::instance();
     Pawn wp(Color::WHITE);
     Position e2(6, 4);
     board.set(e2, &wp);
