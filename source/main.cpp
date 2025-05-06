@@ -7,10 +7,13 @@ int main()
 {
 
     Board& board = Board::instance();
-    Pawn wp(Color::WHITE);
+    board.setupInitialPosition();
+
+    auto* wp = new Pawn(Color::WHITE);
     Position e2(6, 4);
-    board.set(e2, &wp);
-    auto moves = wp.generateMoves(board, e2);
+    board.set(e2, wp);
+
+    auto moves = wp->generateMoves(board, e2);
 
     for (size_t i = 0; i < moves.size(); i++)
     {
