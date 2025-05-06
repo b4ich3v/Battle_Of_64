@@ -12,7 +12,7 @@ int main()
     board.set(e2, &wp);
     auto moves = wp.generateMoves(board, e2);
 
-    for (size_t i = 0; i < moves.size(); ++i)
+    for (size_t i = 0; i < moves.size(); i++)
     {
 
         Position m = moves[i];
