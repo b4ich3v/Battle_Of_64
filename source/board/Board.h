@@ -32,9 +32,19 @@ private:
     MyVector<MyVector<Figure*>> table; 
     MyVector<HistoryEntry> history;
 
+    Board();                
+
+    ~Board();      
+    
+    Board(const Board&) = delete;
+
+    Board& operator = (const Board&) = delete;
+
+    void free();
+
 public:
 
-    Board();
+    static Board& instance();
 
     bool isValid(const Position& position) const;
 
