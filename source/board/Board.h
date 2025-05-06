@@ -10,15 +10,24 @@ public:
     Move move;
     Figure* captured;
 
+    MyVector<bool> castleKingSide;
+    MyVector<bool> castleQueenSide;
+
     HistoryEntry();
 
     HistoryEntry(const Move& move, Figure* captured);
+
+    HistoryEntry(const Move& move, Figure* captured,
+        const MyVector<bool>&prevKing, const MyVector<bool>&prevQueen);
 
 };
 
 class Board 
 {
 private:
+
+    MyVector<bool> castleKS;
+    MyVector<bool> castleQS;
 
     MyVector<MyVector<Figure*>> table; 
     MyVector<HistoryEntry> history;
@@ -32,6 +41,8 @@ public:
     Figure* at(const Position& position) const;
 
     void set(const Position& position, Figure* figure);
+
+    void setupInitialPosition();
 
     void applyMove(const Move& move);
 
