@@ -1,13 +1,13 @@
 #include "King.h"
 #include "Board.h"
 
-King::King(Color color):
+King::King(Color color): 
     Figure(color, FigureType::KING) {}
 
 MyVector<Position> King::generateMoves(const Board& board, const Position& from) const
 {
-
-    static const std::pair<int, int> offsets[] =
+    
+    static const MyPair<int, int> offsets[] = 
     {
 
         {1, 0}, {1, 1}, {0, 1}, {-1, 1},
@@ -30,14 +30,14 @@ MyVector<Position> King::generateMoves(const Board& board, const Position& from)
 
     }
 
-    if (board.canCastleKingSide(color))
+    if (board.canCastleKingSide(color)) 
     {
 
         Position ks{ from.row, from.col + 2 };
         if (board.isValid(ks)) moves.push_back(ks);
 
     }
-
+   
     if (board.canCastleQueenSide(color))
     {
 
