@@ -53,6 +53,8 @@ public:
 
 	void push_back(const T& element);
 
+    void clear();
+
 	bool empty() const;
 
 	size_t size() const;
@@ -124,7 +126,7 @@ MyVector<T>::MyVector()
 
     capacity = 8;
     sizeOfData = 0;
-    data = new T[capacity]();
+    data = new T[capacity]{};
 
 }
 
@@ -246,6 +248,15 @@ bool MyVector<T>::empty() const
 {
 
     return sizeOfData == 0;
+
+}
+
+template <class T>
+
+void MyVector<T>::clear() 
+{
+
+    sizeOfData = 0;
 
 }
 
