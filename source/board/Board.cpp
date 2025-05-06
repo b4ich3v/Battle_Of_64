@@ -6,7 +6,7 @@ HistoryEntry::HistoryEntry():
 HistoryEntry::HistoryEntry(const Move& move, Figure* captured):
     move(move), captured(captured) {}
 
-Board::Board(): table(), history()
+Board::Board(): table(), history() 
 {
 
     for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
@@ -63,7 +63,7 @@ void Board::applyMove(const Move& move)
 
 }
 
-void Board::undoMove(const Move& move)
+void Board::undoMove(const Move& move) 
 {
 
     auto entry = popHistory();
@@ -79,11 +79,11 @@ void Board::pushHistory(HistoryEntry entry)
 
 }
 
-bool Board::canCastleKingSide(Color color) const
+bool Board::canCastleKingSide(Color color) const 
 {
 
     int row = (color == Color::WHITE ? 7 : 0);
-
+    
     Figure* king = at(Position(row, 4));
     Figure* rook = at(Position(row, 7));
 
@@ -95,11 +95,11 @@ bool Board::canCastleKingSide(Color color) const
 
 }
 
-bool Board::canCastleQueenSide(Color color) const
+bool Board::canCastleQueenSide(Color color) const 
 {
 
     int row = (color == Color::WHITE ? 7 : 0);
-
+    
     Figure* king = at(Position(row, 4));
     Figure* rook = at(Position(row, 0));
 
@@ -111,7 +111,104 @@ bool Board::canCastleQueenSide(Color color) const
 
 }
 
-HistoryEntry Board::peekHistory() const
+bool Board::isUnderAttack(const Position& position, Color attacker) const 
+{
+ 
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    {
+
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        {
+
+            Figure* currentFigure = at({ currentRowIndex,currentColIndex });
+
+            if (currentFigure && currentFigure->getColor() == attacker)
+            {
+
+                auto move = currentFigure->generateMoves(*this, { currentRowIndex,currentColIndex });
+
+                for (size_t i = 0; i < move.size(); i++)
+                {
+
+                    if (move[i] == position) return true;
+
+                }
+
+            }
+
+        }
+
+    }
+
+    return false;
+
+}
+
+bool Board::isInCheck(Color c) const 
+{
+    
+    Position kingPosition{ -1,-1 };
+
+    for (int currentRowIndex = 0; currentRowIndex < 8; ++currentRowIndex) 
+    {
+
+        for (int currentColIndex = 0; currentColIndex < 8; ++currentColIndex)
+        {
+
+            if (Figure* currentFigure = at({ currentRowIndex,currentColIndex }))
+            {
+
+                if (currentFigure->getColor() == c && currentFigure->symbol() == (c == Color::WHITE ? 'K' : 'k'))
+                {
+
+                    kingPosition = { currentRowIndex,currentColIndex };
+
+                }
+
+            }
+                   
+        }   
+
+    }
+        
+    if (kingPosition.row < 0) throw std::runtime_error("isInCheck: king not found on board");
+        
+    return isUnderAttack(kingPosition, oppositeColor(c));
+
+}
+
+bool Board::isLegalMove(const Move& move, Color moverSide)
+{
+    
+    if (Figure* currentFigure = at(move.from)) 
+    {
+
+        if (currentFigure->getColor() != moverSide) return false;
+
+    }
+    else return false;
+
+    auto pseudo = at(move.from)->generateMoves(*this, move.from);
+    bool found = false;
+
+    for (size_t i = 0; i < pseudo.size(); i++)
+    {
+
+        if (pseudo[i] == move.to) { found = true; break; }
+
+    }
+
+    if (!found) return false;
+
+    applyMove(move);
+    bool inCheck = isInCheck(moverSide);
+    undoMove(move);
+
+    return !inCheck;
+
+}
+
+HistoryEntry Board::peekHistory() const 
 {
 
     size_t sizeOfHistory = history.size();
