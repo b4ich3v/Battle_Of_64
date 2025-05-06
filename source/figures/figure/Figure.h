@@ -1,5 +1,5 @@
 #include "Position.h"
-#include "../MyVector.hpp"
+#include "MyVector.hpp"
 #pragma once
 
 enum class Color: uint8_t
@@ -9,6 +9,13 @@ enum class Color: uint8_t
     BLACK
 
 };
+
+inline Color oppositeColor(Color color)
+{
+
+    return color == Color::WHITE ? Color::BLACK : Color::WHITE;
+
+}
 
 enum class FigureType: uint8_t
 {
