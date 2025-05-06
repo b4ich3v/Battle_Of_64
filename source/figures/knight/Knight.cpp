@@ -1,13 +1,13 @@
 #include "Knight.h"
 #include "Board.h"
 
-Knight::Knight(Color color):
+Knight::Knight(Color color): 
     Figure(color, FigureType::KNIGHT) {}
 
 MyVector<Position> Knight::generateMoves(const Board& board, const Position& from) const
 {
 
-    static const std::pair<int, int> offsets[] =
+    static const MyPair<int, int> offsets[] = 
     {
 
         {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
@@ -17,7 +17,7 @@ MyVector<Position> Knight::generateMoves(const Board& board, const Position& fro
 
     MyVector<Position> moves;
 
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 8; i++)
     {
 
         Position to{ from.row + offsets[i].first, from.col + offsets[i].second };
@@ -25,7 +25,7 @@ MyVector<Position> Knight::generateMoves(const Board& board, const Position& fro
         if (!board.isValid(to)) continue;
 
         Figure* occupant = board.at(to);
-
+        
         if (occupant == nullptr || occupant->getColor() != this->getColor())  moves.push_back(to);
 
     }
