@@ -1,3 +1,9 @@
+#include "Rook.h"
+#include "Knight.h"
+#include "Bishop.h"
+#include "Queen.h"
+#include "King.h"
+#include "Pawn.h"
 #include "Board.h"
 
 HistoryEntry::HistoryEntry():
@@ -5,6 +11,11 @@ HistoryEntry::HistoryEntry():
 
 HistoryEntry::HistoryEntry(const Move& move, Figure* captured):
     move(move), captured(captured) {}
+
+HistoryEntry::HistoryEntry(const Move & move, Figure* captured,
+    const MyVector<bool>&prevKing, const MyVector<bool>&prevQueen): 
+    move(move), captured(captured), 
+    castleKingSide(prevKing), castleQueenSide(prevQueen) {}
 
 Board::Board(): table(), history() 
 {
@@ -51,24 +62,83 @@ void Board::set(const Position& position, Figure* figure)
 
 }
 
-void Board::applyMove(const Move& move)
+void Board::setupInitialPosition() 
 {
+    
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++) 
+    {
 
-    Figure* figure = at(move.from);
-    Figure* captured = at(move.to);
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        {
 
-    set(move.to, figure);
-    set(move.from, nullptr);
-    pushHistory(HistoryEntry(move, captured));
+            set({ currentRowIndex,currentColIndex }, nullptr);
+
+        }
+        
+    }
+        
+    history.clear();
+    castleKS.clear();
+    castleQS.clear();
+
+    castleKS.push_back(true);
+    castleKS.push_back(true);
+    castleQS.push_back(true);
+    castleQS.push_back(true);
+
+    set({ 7,0 }, new Rook(Color::WHITE));
+    set({ 7,1 }, new Knight(Color::WHITE));
+    set({ 7,2 }, new Bishop(Color::WHITE));
+    set({ 7,3 }, new Queen(Color::WHITE));
+    set({ 7,4 }, new King(Color::WHITE));
+    set({ 7,5 }, new Bishop(Color::WHITE));
+    set({ 7,6 }, new Knight(Color::WHITE));
+    set({ 7,7 }, new Rook(Color::WHITE));
+
+    for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+    {
+
+        set({ 6,currentColIndex }, new Pawn(Color::WHITE));
+
+    }
+        
+    set({ 0,0 }, new Rook(Color::BLACK));
+    set({ 0,1 }, new Knight(Color::BLACK));
+    set({ 0,2 }, new Bishop(Color::BLACK));
+    set({ 0,3 }, new Queen(Color::BLACK));
+    set({ 0,4 }, new King(Color::BLACK));
+    set({ 0,5 }, new Bishop(Color::BLACK));
+    set({ 0,6 }, new Knight(Color::BLACK));
+    set({ 0,7 }, new Rook(Color::BLACK));
+
+    for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++) 
+    {
+
+        set({ 1,currentColIndex }, new Pawn(Color::BLACK));
+
+    }
 
 }
 
-void Board::undoMove(const Move& move) 
+void Board::applyMove(const Move& move) 
 {
+    
+    HistoryEntry entry(move, at(move.to), castleKS, castleQS);
 
+    move.execute(*this);
+    pushHistory(entry);
+
+}
+
+void Board::undoMove(const Move&) 
+{
+    
     auto entry = popHistory();
-    set(entry.move.from, at(entry.move.to));
-    set(entry.move.to, entry.captured);
+
+    castleKS = entry.castleKingSide;
+    castleQS = entry.castleQueenSide;
+
+    entry.move.undo(*this);
 
 }
 
@@ -81,6 +151,9 @@ void Board::pushHistory(HistoryEntry entry)
 
 bool Board::canCastleKingSide(Color color) const 
 {
+
+    int index = (int)(color);
+    if (!castleKS[index]) return false;
 
     int row = (color == Color::WHITE ? 7 : 0);
     
@@ -97,6 +170,9 @@ bool Board::canCastleKingSide(Color color) const
 
 bool Board::canCastleQueenSide(Color color) const 
 {
+
+    int index = (int)(color);
+    if (!castleQS[index]) return false;
 
     int row = (color == Color::WHITE ? 7 : 0);
     
