@@ -124,7 +124,7 @@ MyVector<T>::MyVector()
 
     capacity = 8;
     sizeOfData = 0;
-    data = new T[capacity]{};
+    data = new T[capacity]();
 
 }
 
