@@ -5,13 +5,13 @@ SlidingFigure::SlidingFigure(Color color, FigureType type)
     : Figure(color, type) {}
 
 MyVector<Position> SlidingFigure::generateSliding(const Board& board, const Position& from,
-    MyVector<std::pair<int, int>> directions) const
+    MyVector<MyPair<int, int>> directions) const
 {
 
     MyVector<Position> moves;
     size_t directionCount = directions.size();
 
-    for (size_t i = 0; i < directionCount; i++)
+    for (size_t i = 0; i < directionCount; i++) 
     {
 
         int dx = directions[i].first;
