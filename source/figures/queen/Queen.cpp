@@ -1,18 +1,25 @@
 #include "Queen.h"
 
-Queen::Queen(Color color):
+Queen::Queen(Color color): 
     SlidingFigure(color, FigureType::QUEEN) {}
 
 MyVector<Position> Queen::generateMoves(const Board& board, const Position& from) const
 {
 
-    static const MyVector<std::pair<int, int>> dirs = []
+    static const MyVector<MyPair<int, int>> dirs = [] 
     {
 
-        MyVector<std::pair<int, int>> directions;
-        std::pair<int, int> arr[] = { {1,0},{-1,0},{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1} };
+        MyVector<MyPair<int, int>> directions;
+        MyPair<int, int> arr[] = { {1,0},{-1,0},{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1} };
 
-        for (auto& p : arr) directions.push_back(p);
+        int dirCount = sizeof(arr) / sizeof(arr[0]);
+
+        for (int i = 0; i < dirCount; i++) 
+        {
+
+            directions.push_back(arr[i]);
+
+        }
 
         return directions;
 
@@ -22,7 +29,7 @@ MyVector<Position> Queen::generateMoves(const Board& board, const Position& from
 
 }
 
-char Queen::symbol() const
+char Queen::symbol() const 
 {
 
     return (color == Color::WHITE ? 'Q' : 'q');
