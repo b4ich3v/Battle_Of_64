@@ -3,10 +3,10 @@
 #include "Move.h"
 #pragma once
 
-struct HistoryEntry
+struct HistoryEntry 
 {
 public:
-
+    
     Move move;
     Figure* captured;
 
@@ -16,11 +16,11 @@ public:
 
 };
 
-class Board
+class Board 
 {
 private:
 
-    MyVector<MyVector<Figure*>> table;
+    MyVector<MyVector<Figure*>> table; 
     MyVector<HistoryEntry> history;
 
 public:
@@ -42,6 +42,12 @@ public:
     bool canCastleKingSide(Color color) const;
 
     bool canCastleQueenSide(Color color) const;
+
+    bool isUnderAttack(const Position& position, Color attacker) const;
+
+    bool isInCheck(Color color) const;
+
+    bool isLegalMove(const Move& move, Color moverSide);
 
     HistoryEntry peekHistory() const;
 
