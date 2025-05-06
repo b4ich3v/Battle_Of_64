@@ -2,39 +2,39 @@
 
 template<class T1 = int, class T2 = int>
 
-struct Pair
+struct MyPair
 {
 public:
 
     T1 first;
     T2 second;
 
-    Pair() = default;
+    MyPair() = default;
 
-    Pair(const T1& a, const T2& b);
+    MyPair(const T1& a, const T2& b);
 
-    bool operator == (const Pair& other) const;
+    bool operator == (const MyPair& other) const;
 
-    bool operator != (const Pair& other) const;
+    bool operator != (const MyPair& other) const;
 
-    bool operator < (const Pair& other) const;
+    bool operator < (const MyPair& other) const;
 
-    bool operator <=(const Pair& other) const;
+    bool operator <=(const MyPair& other) const;
 
-    bool operator > (const Pair& other) const;
+    bool operator > (const MyPair& other) const;
 
-    bool operator >= (const Pair& other) const;
+    bool operator >= (const MyPair& other) const;
 
 };
 
 template<class T1, class T2>
 
-Pair<T1, T2>::Pair(const T1& a, const T2& b):
+MyPair<T1, T2>::MyPair(const T1& a, const T2& b):
     first(a), second(b) {}
 
 template<class T1, class T2>
 
-bool Pair<T1, T2>::operator == (const Pair& other) const
+bool MyPair<T1, T2>::operator == (const MyPair& other) const
 {
 
     return first == other.first && second == other.second;
@@ -43,7 +43,7 @@ bool Pair<T1, T2>::operator == (const Pair& other) const
 
 template<class T1, class T2>
 
-bool Pair<T1, T2>::operator != (const Pair& other) const
+bool MyPair<T1, T2>::operator != (const MyPair& other) const
 {
 
     return !(*this == other);
@@ -52,7 +52,7 @@ bool Pair<T1, T2>::operator != (const Pair& other) const
 
 template<class T1, class T2>
 
-bool Pair<T1, T2>::operator < (const Pair& other) const
+bool MyPair<T1, T2>::operator < (const MyPair& other) const
 {
 
     if (first < other.first) return true;
@@ -64,7 +64,7 @@ bool Pair<T1, T2>::operator < (const Pair& other) const
 
 template<class T1, class T2>
 
-bool Pair<T1, T2>::operator <= (const Pair& other) const
+bool MyPair<T1, T2>::operator <= (const MyPair& other) const
 {
 
     return !(other < *this);
@@ -73,7 +73,7 @@ bool Pair<T1, T2>::operator <= (const Pair& other) const
 
 template<class T1, class T2>
 
-bool Pair<T1, T2>::operator > (const Pair& other) const
+bool MyPair<T1, T2>::operator > (const MyPair& other) const
 {
 
     return other < *this;
@@ -82,7 +82,7 @@ bool Pair<T1, T2>::operator > (const Pair& other) const
 
 template<class T1, class T2>
 
-bool Pair<T1, T2>::operator >= (const Pair& other) const
+bool MyPair<T1, T2>::operator >= (const MyPair& other) const
 {
 
     return !(*this < other);
