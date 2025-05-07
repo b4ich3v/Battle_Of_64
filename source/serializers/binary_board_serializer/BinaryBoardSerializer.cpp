@@ -73,12 +73,12 @@ void BinaryBoardSerializer::load(Board& board) const
             switch (lower) 
             {
 
-            case 'p': figure = new Pawn(color);   break;
-            case 'r': figure = new Rook(color);   break;
+            case 'p': figure = new Pawn(color); break;
+            case 'r': figure = new Rook(color); break;
             case 'n': figure = new Knight(color); break;
             case 'b': figure = new Bishop(color); break;
-            case 'q': figure = new Queen(color);  break;
-            case 'k': figure = new King(color);   break;
+            case 'q': figure = new Queen(color); break;
+            case 'k': figure = new King(color); break;
             default:  break;
 
             }
