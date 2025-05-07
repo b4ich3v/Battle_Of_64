@@ -20,7 +20,7 @@ bool HumanPlayer::tryParseSquare(const char* buffer, Position& position)
 
 }
 
-Move HumanPlayer::requestMove(const Board& board, Color mover)
+Move HumanPlayer::requestMove(Board& board, Color mover)
 {
 
     while (true) 
