@@ -54,6 +54,8 @@ public:
 
     void setupInitialPosition();
 
+    void clear();
+
     void applyMove(const Move& move);
 
     void undoMove(const Move& move);
