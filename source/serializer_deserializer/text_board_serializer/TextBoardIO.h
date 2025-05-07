@@ -1,4 +1,4 @@
-#include "BoardSerializer.h"
+#include "BoardIO.h"
 #pragma once
 
 class TextBoardIO: public BoardSerializer
