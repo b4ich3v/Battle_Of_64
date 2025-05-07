@@ -1,7 +1,7 @@
 #include "BoardIO.h"
 #pragma once
 
-class TextBoardIO: public BoardSerializer
+class TextBoardIO: public BoardIO
 {
 public:
 
