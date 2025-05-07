@@ -9,6 +9,6 @@ public:
 
     static bool tryParseSquare(const char* buffer, Position& position);
 
-    Move requestMove(const Board& board, Color mover) override;
+    Move requestMove(Board& board, Color mover) override;
 
 };
