@@ -171,6 +171,13 @@ void Board::free()
 
 }
 
+void Board::clear() 
+{
+
+    free();
+
+}
+
 void Board::applyMove(const Move& move) 
 {
     
