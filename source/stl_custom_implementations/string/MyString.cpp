@@ -206,6 +206,13 @@ size_t MyString::size() const
 
 }
 
+const char* MyString::getData() const 
+{
+
+    return data;
+
+}
+
 std::ostream& operator << (std::ostream& os, const MyString& str) 
 {
 
