@@ -8,7 +8,7 @@
 #include "Pawn.h"
 
 TextBoardIO::TextBoardIO(const MyString& fileName):
-    BoardSerializer(fileName) {}
+    BoardIO(fileName) {}
 
 void TextBoardIO::save(const Board& board) const
 {
