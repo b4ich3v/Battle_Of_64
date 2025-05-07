@@ -49,6 +49,8 @@ public:
 
 	bool empty() const;
 
+	const char* getData() const;
+
 	size_t size() const;
 
 	friend std::ostream& operator << (std::ostream& os, const MyString& str);
