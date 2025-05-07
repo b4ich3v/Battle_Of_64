@@ -72,6 +72,8 @@ public:
 
     bool isLegalMove(const Move& move, Color moverSide);
 
+    MyVector<Move> generateAllLegalMoves(Color mover);
+
     HistoryEntry peekHistory() const;
 
     HistoryEntry popHistory();
