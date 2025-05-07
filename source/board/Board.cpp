@@ -342,6 +342,40 @@ bool Board::isLegalMove(const Move& move, Color moverSide)
 
 }
 
+MyVector<Move> Board::generateAllLegalMoves(Color mover) 
+{
+
+    MyVector<Move> result;
+
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    {
+
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        {
+
+            Position from{ currentRowIndex, currentColIndex };
+            Figure* figure = at(from);
+
+            if (!figure || figure->getColor() != mover) continue;
+                
+            MyVector<Position> targets = figure->generateMoves(*this, from);
+
+            for (size_t i = 0; i < targets.size(); i++)
+            {
+                Move m(from, targets[i]);
+                
+                if (isLegalMove(m, mover)) result.push_back(m);
+
+            }
+
+        }
+
+    }
+
+    return result;
+
+}
+
 HistoryEntry Board::peekHistory() const 
 {
 
