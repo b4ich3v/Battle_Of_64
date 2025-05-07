@@ -17,6 +17,6 @@ public:
 
     const MyString& getName() const;
 
-    virtual Move requestMove(const Board& board, Color mover) = 0;
+    virtual Move requestMove(Board& board, Color mover) = 0;
 
 };
