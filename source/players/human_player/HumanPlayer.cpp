@@ -1,196 +1,101 @@
-#include "Move.h"
-#include "Board.h"
-#include "Figure.h"
-#include "Pawn.h"
-#include "Rook.h"
-#include "Knight.h"
-#include "Bishop.h"
-#include "Queen.h"
+#include "HumanPlayer.h"
 
-Move::Move(): from{ 0,0 }, to{ 0,0 },
-    special(SpecialMove::NORMAL), promotionType(FigureType::QUEEN) {}
+HumanPlayer::HumanPlayer(const MyString& name):
+    Player(name) {}
 
-Move::Move(Position f, Position t,
-    SpecialMove s,FigureType p):
-    from(f), to(t), special(s), promotionType(p) {}
-
-void Move::execute(Board& board) const
+bool HumanPlayer::tryParseSquare(const char* buffer, Position& position)
 {
 
-    Figure* movingFigure = board.at(from);
-    Figure* captured = nullptr;
+    if (!buffer || std::strlen(buffer) < 2) return false;
 
-    switch (special)
+    char file = (buffer[0] >= 'A' && buffer[0] <= 'Z') ? (char)(buffer[0] - 'A' + 'a') : buffer[0];
+    char rank = buffer[1];
+
+    if (file < 'a' || file > 'h' || rank < '1' || rank > '8')     return false;
+
+    position.col = file - 'a';
+    position.row = 8 - (rank - '0');
+
+    return true;
+
+}
+
+Move HumanPlayer::requestMove(Board& board, Color mover)
+{
+
+    while (true)
     {
 
-    case SpecialMove::NORMAL:
-    {
+        std::cout << name.getData() << " (" << (mover == Color::WHITE ? "White" : "Black") << ")> ";
 
-        captured = board.at(to);
-        board.set(to, movingFigure);
-        board.set(from, nullptr);
+        MyString token;
 
-        break;
+        if (!(std::cin >> token)) std::exit(0);
+        const char* str = token.getData();
 
-    }
-    case SpecialMove::CASTLING_KING_SIDE:
-    {
-
-        int row = from.row;
-
-        board.set(to, movingFigure);
-        board.set(from, nullptr);
-
-        Position rookFrom{ row,7 }, rookTo{ row,5 };
-        Figure* rook = board.at(rookFrom);
-        board.set(rookTo, rook);
-        board.set(rookFrom, nullptr);
-
-        break;
-
-    }
-    case SpecialMove::CASTLING_QUEEN_SIDE:
-    {
-
-        int row = from.row;
-        board.set(to, movingFigure);
-        board.set(from, nullptr);
-
-        Position rookFrom{ row,0 }, rookTo{ row,3 };
-        Figure* rook = board.at(rookFrom);
-        board.set(rookTo, rook);
-        board.set(rookFrom, nullptr);
-
-        break;
-
-    }
-    case SpecialMove::EN_PASSANT:
-    {
-
-        board.set(to, movingFigure);
-
-        board.set(from, nullptr);
-        int dir = (movingFigure->getColor() == Color::WHITE ? +1 : -1);
-        Position capPos{ to.row + dir, to.col };
-        captured = board.at(capPos);
-        board.set(capPos, nullptr);
-
-        break;
-
-    }
-    case SpecialMove::PROMOTION:
-    {
-
-        board.set(from, nullptr);
-        captured = board.at(to);
-
-        Figure* promo = nullptr;
-
-        switch (promotionType)
+        if (std::strcmp(str, "O-O") == 0 || std::strcmp(str, "0-0") == 0)
         {
 
-        case FigureType::QUEEN:  promo = new Queen(movingFigure->getColor()); break;
-        case FigureType::ROOK:   promo = new Rook(movingFigure->getColor()); break;
-        case FigureType::BISHOP: promo = new Bishop(movingFigure->getColor()); break;
-        case FigureType::KNIGHT: promo = new Knight(movingFigure->getColor()); break;
-        default: promo = new Queen(movingFigure->getColor()); break;
+            Position from = (mover == Color::WHITE ? Position{ 7,4 } : Position{ 0,4 });
+            Position to = (mover == Color::WHITE ? Position{ 7,6 } : Position{ 0,6 });
+
+            return Move(from, to, SpecialMove::CASTLING_KING_SIDE);
+
         }
 
-        board.set(to, promo);
+        if (std::strcmp(str, "O-O-O") == 0 || std::strcmp(str, "0-0-0") == 0)
+        {
 
-        break;
+            Position from = (mover == Color::WHITE ? Position{ 7,4 } : Position{ 0,4 });
+            Position to = (mover == Color::WHITE ? Position{ 7,2 } : Position{ 0,2 });
 
-    }
-    default: break;
+            return Move(from, to, SpecialMove::CASTLING_QUEEN_SIDE);
 
-    }
+        }
 
-    board.pushHistory({ *this, captured });
+        size_t len = std::strlen(str);
 
-}
+        if (len >= 4)
+        {
 
-void Move::undo(Board& board) const
-{
+            char buffer1[3] = { str[0], str[1], '\0' };
+            char buffer2[3] = { str[2], str[3], '\0' };
+            Position from, to;
 
-    auto entry = board.popHistory();
-    const Move& move = entry.move;
-    Figure* movingFigure;
+            if (tryParseSquare(buffer1, from) && tryParseSquare(buffer2, to))
+            {
 
-    switch (move.special)
-    {
+                SpecialMove specialMove = SpecialMove::NORMAL;
+                FigureType promo = FigureType::QUEEN;
 
-    case SpecialMove::NORMAL:
-    {
+                if (len == 5)
+                {
 
-        movingFigure = board.at(move.to);
-        board.set(move.from, movingFigure);
-        board.set(move.to, entry.captured);
+                    specialMove = SpecialMove::PROMOTION;
+                    char x = str[4];
+                    char P = (x >= 'a' && x <= 'z') ? (x - 'a' + 'A') : x;
 
-        break;
+                    switch (P)
+                    {
 
-    }
-    case SpecialMove::CASTLING_KING_SIDE:
-    {
+                    case 'R': promo = FigureType::ROOK; break;
+                    case 'N': promo = FigureType::KNIGHT; break;
+                    case 'B': promo = FigureType::BISHOP; break;
+                    default: promo = FigureType::QUEEN; break;
 
-        int row = move.from.row;
+                    }
 
-        movingFigure = board.at(move.to);
-        board.set(move.from, movingFigure);
-        board.set(move.to, nullptr);
+                }
 
-        Position rookFrom{ row,5 }, rookTo{ row,7 };
-        Figure* rook = board.at(rookFrom);
-        board.set(rookTo, rook);
-        board.set(rookFrom, nullptr);
+                return Move(from, to, specialMove, promo);
 
-        break;
+            }
 
-    }
-    case SpecialMove::CASTLING_QUEEN_SIDE:
-    {
+        }
 
-        int row = move.from.row;
-        movingFigure = board.at(move.to);
-        board.set(move.from, movingFigure);
-        board.set(move.to, nullptr);
-
-        Position rookFrom{ row,3 }, rookTo{ row,0 };
-        Figure* rook = board.at(rookFrom);
-        board.set(rookTo, rook);
-        board.set(rookFrom, nullptr);
-
-        break;
-
-    }
-    case SpecialMove::EN_PASSANT:
-    {
-
-        movingFigure = board.at(move.to);
-        board.set(move.from, movingFigure);
-        board.set(move.to, nullptr);
-
-        int dir = (movingFigure->getColor() == Color::WHITE ? +1 : -1);
-        Position capPos{ move.to.row + dir, move.to.col };
-        board.set(capPos, entry.captured);
-
-        break;
-
-    }
-    case SpecialMove::PROMOTION:
-    {
-
-        Figure* promoted = board.at(move.to);
-        delete promoted;
-
-        Figure* pawn = new Pawn(entry.captured ? entry.captured->getColor() : Color::WHITE);
-        board.set(move.from, pawn);
-        board.set(move.to, entry.captured);
-
-        break;
-
-    }
-    default: break;
+        std::cout << "Invalid input, try again." << std::endl;
 
     }
 
 }
+
