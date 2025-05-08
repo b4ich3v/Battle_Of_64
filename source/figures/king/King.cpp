@@ -50,6 +50,13 @@ MyVector<Position> King::generateMoves(const Board& board, const Position& from)
 
 }
 
+void King::accept(Visitor& visitor) const
+{
+
+    visitor.visit(*this);
+
+}
+
 char King::symbol() const
 {
 
