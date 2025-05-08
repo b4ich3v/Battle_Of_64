@@ -29,6 +29,13 @@ MyVector<Position> Queen::generateMoves(const Board& board, const Position& from
 
 }
 
+void Queen::accept(Visitor& visitor) const
+{
+
+    visitor.visit(*this);
+
+}
+
 char Queen::symbol() const 
 {
 
