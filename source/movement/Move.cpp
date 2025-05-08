@@ -11,7 +11,7 @@ Move::Move(): from{ 0,0 }, to{ 0,0 },
     special(SpecialMove::NORMAL), promotionType(FigureType::QUEEN) {}
 
 Move::Move(Position f, Position t,
-    SpecialMove s,FigureType p): 
+    SpecialMove s,FigureType p):
     from(f), to(t), special(s), promotionType(p) {}
 
 void Move::execute(Board& board) const
@@ -20,7 +20,7 @@ void Move::execute(Board& board) const
     Figure* movingFigure = board.at(from);
     Figure* captured = nullptr;
 
-    switch (special) 
+    switch (special)
     {
 
     case SpecialMove::NORMAL:
@@ -33,14 +33,14 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTILING_KING_SIDE: 
+    case SpecialMove::CASTLING_KING_SIDE:
     {
 
         int row = from.row;
-        
+
         board.set(to, movingFigure);
         board.set(from, nullptr);
-        
+
         Position rookFrom{ row,7 }, rookTo{ row,5 };
         Figure* rook = board.at(rookFrom);
         board.set(rookTo, rook);
@@ -49,13 +49,13 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTILING_QUEEN_SIDE: 
+    case SpecialMove::CASTLING_QUEEN_SIDE:
     {
 
         int row = from.row;
         board.set(to, movingFigure);
         board.set(from, nullptr);
-        
+
         Position rookFrom{ row,0 }, rookTo{ row,3 };
         Figure* rook = board.at(rookFrom);
         board.set(rookTo, rook);
@@ -66,7 +66,7 @@ void Move::execute(Board& board) const
     }
     case SpecialMove::EN_PASSANT:
     {
-        
+
         board.set(to, movingFigure);
 
         board.set(from, nullptr);
@@ -78,15 +78,15 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::PROMOTION: 
+    case SpecialMove::PROMOTION:
     {
-        
+
         board.set(from, nullptr);
         captured = board.at(to);
-        
+
         Figure* promo = nullptr;
 
-        switch (promotionType) 
+        switch (promotionType)
         {
 
         case FigureType::QUEEN:  promo = new Queen(movingFigure->getColor()); break;
@@ -116,7 +116,7 @@ void Move::undo(Board& board) const
     const Move& move = entry.move;
     Figure* movingFigure;
 
-    switch (move.special) 
+    switch (move.special)
     {
 
     case SpecialMove::NORMAL:
@@ -129,15 +129,15 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTILING_KING_SIDE: 
+    case SpecialMove::CASTLING_KING_SIDE:
     {
 
         int row = move.from.row;
-        
+
         movingFigure = board.at(move.to);
         board.set(move.from, movingFigure);
         board.set(move.to, nullptr);
-        
+
         Position rookFrom{ row,5 }, rookTo{ row,7 };
         Figure* rook = board.at(rookFrom);
         board.set(rookTo, rook);
@@ -146,14 +146,14 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTILING_QUEEN_SIDE: 
+    case SpecialMove::CASTLING_QUEEN_SIDE:
     {
 
         int row = move.from.row;
         movingFigure = board.at(move.to);
         board.set(move.from, movingFigure);
         board.set(move.to, nullptr);
-        
+
         Position rookFrom{ row,3 }, rookTo{ row,0 };
         Figure* rook = board.at(rookFrom);
         board.set(rookTo, rook);
@@ -162,13 +162,13 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::EN_PASSANT: 
+    case SpecialMove::EN_PASSANT:
     {
 
         movingFigure = board.at(move.to);
         board.set(move.from, movingFigure);
         board.set(move.to, nullptr);
-        
+
         int dir = (movingFigure->getColor() == Color::WHITE ? +1 : -1);
         Position capPos{ move.to.row + dir, move.to.col };
         board.set(capPos, entry.captured);
@@ -178,10 +178,10 @@ void Move::undo(Board& board) const
     }
     case SpecialMove::PROMOTION:
     {
-        
+
         Figure* promoted = board.at(move.to);
         delete promoted;
-        
+
         Figure* pawn = new Pawn(entry.captured ? entry.captured->getColor() : Color::WHITE);
         board.set(move.from, pawn);
         board.set(move.to, entry.captured);
