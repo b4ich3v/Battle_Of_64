@@ -6,7 +6,7 @@ class SlidingFigure: public Figure
 protected:
 
     MyVector<Position> generateSliding(const Board& board, const Position& from, 
-        MyVector<MyPair<int, int>> directions) const;
+        const MyVector<MyPair<int, int>>& directions) const;
 
 public:
 
