@@ -1,4 +1,5 @@
 #include "Position.h"
+#include "Visitor.h"
 #include "MyVector.hpp"
 #include "MyPair.hpp"
 #pragma once
@@ -50,6 +51,8 @@ public:
     virtual MyVector<Position> generateMoves(const Board& board, const Position& from) const = 0;
 
     virtual char symbol() const = 0;
+
+    virtual void accept(Visitor& visitor) const = 0;
 
     virtual ~Figure() = default;
 
