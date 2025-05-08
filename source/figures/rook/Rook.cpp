@@ -24,6 +24,13 @@ MyVector<Position> Rook::generateMoves(const Board& board, const Position& from)
 
 }
 
+void Rook::accept(Visitor& visitor) const
+{
+
+    visitor.visit(*this);
+
+}
+
 char Rook::symbol() const 
 {
 
