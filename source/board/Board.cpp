@@ -175,6 +175,32 @@ void Board::clear()
 {
 
     free();
+    table.clear();
+
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    {
+
+        MyVector<Figure*> currentRow;
+
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        {
+
+            currentRow.push_back(nullptr);
+
+        }
+
+        table.push_back(currentRow);
+
+    }
+
+    history.clear();
+    castleKS.clear();
+    castleQS.clear();
+
+    castleKS.push_back(true);  
+    castleKS.push_back(true);  
+    castleQS.push_back(true);
+    castleQS.push_back(true);
 
 }
 
