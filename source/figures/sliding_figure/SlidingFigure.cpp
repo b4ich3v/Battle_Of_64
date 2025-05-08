@@ -5,7 +5,7 @@ SlidingFigure::SlidingFigure(Color color, FigureType type)
     : Figure(color, type) {}
 
 MyVector<Position> SlidingFigure::generateSliding(const Board& board, const Position& from,
-    MyVector<MyPair<int, int>> directions) const
+    const MyVector<MyPair<int, int>>& directions) const
 {
 
     MyVector<Position> moves;
@@ -26,8 +26,21 @@ MyVector<Position> SlidingFigure::generateSliding(const Board& board, const Posi
             to.col = from.col + dy * step;
 
             if (!board.isValid(to)) break;
-            moves.push_back(to);
-            if (board.at(to) != nullptr) break;
+                
+
+            Figure* occupied = board.at(to);
+
+            if (!occupied) 
+            {
+
+                moves.push_back(to);
+                continue;
+
+            }
+
+            if (occupied->getColor() != this->getColor()) moves.push_back(to);
+        
+            break;
 
         }
 
