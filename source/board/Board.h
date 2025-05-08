@@ -52,6 +52,8 @@ public:
 
     void set(const Position& position, Figure* figure);
 
+    void accept(Visitor& visitor) const;
+
     void setupInitialPosition();
 
     void clear();
