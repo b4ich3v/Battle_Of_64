@@ -34,6 +34,13 @@ MyVector<Position> Knight::generateMoves(const Board& board, const Position& fro
 
 }
 
+void Knight::accept(Visitor& visitor) const
+{
+
+    visitor.visit(*this);
+
+}
+
 char Knight::symbol() const
 {
 
