@@ -24,6 +24,13 @@ MyVector<Position> Bishop::generateMoves(const Board& board,const Position& from
 
 }
 
+void Bishop::accept(Visitor& visitor) const 
+{
+
+    visitor.visit(*this);
+
+}
+
 char Bishop::symbol() const 
 {
 
