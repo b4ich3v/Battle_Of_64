@@ -77,6 +77,25 @@ void Board::set(const Position& position, Figure* figure)
 
 }
 
+void Board::accept(Visitor& visitor) const 
+{
+ 
+    visitor.visit(*this);
+    
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    {
+
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        {
+
+            if (Figure* currentFigure = at({ currentRowIndex,currentColIndex })) currentFigure->accept(visitor);
+
+        }
+
+    }
+
+}
+
 void Board::setupInitialPosition() 
 {
     
