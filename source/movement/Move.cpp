@@ -94,6 +94,7 @@ void Move::execute(Board& board) const
         case FigureType::BISHOP: promo = new Bishop(movingFigure->getColor()); break;
         case FigureType::KNIGHT: promo = new Knight(movingFigure->getColor()); break;
         default: promo = new Queen(movingFigure->getColor()); break;
+            
         }
 
         board.set(to, promo);
