@@ -109,6 +109,7 @@ MySharedPtr<T>& MySharedPtr<T>::operator = (const MySharedPtr& other) noexcept
         count = other.count;
 
         if (count) ++(*count);
+        
     }
 
     return *this;
