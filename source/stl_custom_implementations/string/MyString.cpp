@@ -9,7 +9,7 @@ void MyString::free()
 
 }
 
-void MyString::copyFrom(const MyString& other) 
+void MyString::copyFrom(const MyString& other)
 {
 
     capacity = other.capacity;
@@ -19,7 +19,7 @@ void MyString::copyFrom(const MyString& other)
 
 }
 
-void MyString::moveTo(MyString&& other) 
+void MyString::moveTo(MyString&& other)
 {
     data = other.data;
     capacity = other.capacity;
@@ -29,13 +29,13 @@ void MyString::moveTo(MyString&& other)
 
 }
 
-void MyString::resize(size_t newCapacity) 
+void MyString::resize(size_t newCapacity)
 {
 
     if (newCapacity <= capacity) return;
 
     char* newData = new char[newCapacity];
-    strncpy(newData,data, strlen(data));
+    strncpy(newData, data, strlen(data));
     newData[strlen(data)] = '\0';
 
     delete[] data;
@@ -44,7 +44,7 @@ void MyString::resize(size_t newCapacity)
 
 }
 
-MyString::MyString() 
+MyString::MyString()
 {
 
     capacity = 8;
@@ -53,7 +53,7 @@ MyString::MyString()
 
 }
 
-MyString::MyString(size_t capacity) 
+MyString::MyString(size_t capacity)
 {
 
     data = new char[capacity] {};
@@ -92,17 +92,17 @@ MyString::MyString(MyString&& other) noexcept
 
 }
 
-MyString::~MyString() 
+MyString::~MyString()
 {
 
     free();
 
 }
 
-MyString& MyString::operator = (const MyString& other) 
+MyString& MyString::operator = (const MyString& other)
 {
 
-    if (this != &other) 
+    if (this != &other)
     {
 
         free();
@@ -114,10 +114,10 @@ MyString& MyString::operator = (const MyString& other)
 
 }
 
-MyString& MyString::operator = (MyString&& other) noexcept 
+MyString& MyString::operator = (MyString&& other) noexcept
 {
 
-    if (this != &other) 
+    if (this != &other)
     {
 
         free();
@@ -129,7 +129,7 @@ MyString& MyString::operator = (MyString&& other) noexcept
 
 }
 
-MyString& MyString::operator += (const MyString& other) 
+MyString& MyString::operator += (const MyString& other)
 {
 
     size_t size1 = size();
@@ -143,7 +143,7 @@ MyString& MyString::operator += (const MyString& other)
 
 }
 
-MyString& MyString::operator += (const char* str) 
+MyString& MyString::operator += (const char* str)
 {
 
     size_t size1 = size();
@@ -156,7 +156,7 @@ MyString& MyString::operator += (const char* str)
     return *this;
 }
 
-const char& MyString::operator [] (size_t index) const 
+const char& MyString::operator [] (size_t index) const
 {
 
     if (!data || index >= size())  throw std::out_of_range("String index out of range");
@@ -164,7 +164,7 @@ const char& MyString::operator [] (size_t index) const
 
 }
 
-char& MyString::operator [] (size_t index) 
+char& MyString::operator [] (size_t index)
 {
 
     if (!data || index >= size())  throw std::out_of_range("String index out of range");
@@ -176,7 +176,7 @@ MyString MyString::substr(size_t from, size_t to) const
 {
 
     if (!data || from > to || to > size()) throw std::out_of_range("String substr indices");
-        
+
     size_t sizeOfStr = to - from;
     MyString result;
 
@@ -187,40 +187,40 @@ MyString MyString::substr(size_t from, size_t to) const
     const char* ptr = data + from;
     strncpy(result.data, ptr, sizeOfStr);
     result.data[sizeOfStr] = '\0';
-    
+
     return result;
 
 }
 
-bool MyString::empty() const 
+bool MyString::empty() const
 {
 
     return !data || data[0] == '\0';
 
 }
 
-size_t MyString::size() const 
+size_t MyString::size() const
 {
 
     return data ? std::strlen(data) : 0;
 
 }
 
-const char* MyString::getData() const 
+const char* MyString::getData() const
 {
 
     return data;
 
 }
 
-std::ostream& operator << (std::ostream& os, const MyString& str) 
+std::ostream& operator << (std::ostream& os, const MyString& str)
 {
 
     return os << (str.data ? str.data : "");
 
 }
 
-std::istream& operator >> (std::istream& is, MyString& str) 
+std::istream& operator >> (std::istream& is, MyString& str)
 {
 
     char buffer[MAX_SIZE_BUFFER];
@@ -235,5 +235,35 @@ std::istream& operator >> (std::istream& is, MyString& str)
     str.data[strlen(buffer)] = '\0';
 
     return is;
+
+}
+
+MyString operator + (const MyString& left, const MyString& right)
+{
+
+    MyString result(left);
+    result += right;
+
+    return result;
+
+}
+
+MyString operator + (const MyString& str, const char* data)
+{
+
+    MyString result(str);
+    result += data;
+
+    return result;
+
+}
+
+MyString operator + (const char* data, const MyString& str)
+{
+
+    MyString result(str);
+    result += data;
+
+    return result;
 
 }
