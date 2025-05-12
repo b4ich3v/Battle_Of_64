@@ -1,8 +1,5 @@
-/* main.cpp  —  базови автоматични тестове */
-
 #include <iostream>
 #include <cassert>
-
 #include "Board.h"
 #include "Move.h"
 #include "Pawn.h"
