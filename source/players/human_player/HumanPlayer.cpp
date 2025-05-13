@@ -1,101 +1,158 @@
 #include "HumanPlayer.h"
+#include <cctype>
+#include <iostream>
 
-HumanPlayer::HumanPlayer(const MyString& name):
-    Player(name) {}
-
-bool HumanPlayer::tryParseSquare(const char* buffer, Position& position)
+namespace 
 {
 
-    if (!buffer || std::strlen(buffer) < 2) return false;
-
-    char file = (buffer[0] >= 'A' && buffer[0] <= 'Z') ? (char)(buffer[0] - 'A' + 'a') : buffer[0];
-    char rank = buffer[1];
-
-    if (file < 'a' || file > 'h' || rank < '1' || rank > '8')     return false;
-
-    position.col = file - 'a';
-    position.row = 8 - (rank - '0');
-
-    return true;
-
-}
-
-Move HumanPlayer::requestMove(Board& board, Color mover)
-{
-
-    while (true)
+    bool parseSquare(const MyString& token, Position& outPosition)
     {
 
-        std::cout << name.getData() << " (" << (mover == Color::WHITE ? "White" : "Black") << ")> ";
+        if (token.size() != 2) return false;
 
-        MyString token;
+        char f = std::tolower(token[0]);
+        char r = token[1];
 
-        if (!(std::cin >> token)) std::exit(0);
-        const char* str = token.getData();
+        if (f < 'a' || f > 'h' || r < '1' || r > '8') return false;
 
-        if (std::strcmp(str, "O-O") == 0 || std::strcmp(str, "0-0") == 0)
+        outPosition.col = (int8_t)(f - 'a');
+        outPosition.row = (int8_t)(8 - (r - '0'));
+
+        return true;
+
+    }
+
+    FigureType promoFromChar(char ch)
+    {
+
+        switch (std::tolower(ch)) 
         {
 
-            Position from = (mover == Color::WHITE ? Position{ 7,4 } : Position{ 0,4 });
-            Position to = (mover == Color::WHITE ? Position{ 7,6 } : Position{ 0,6 });
-
-            return Move(from, to, SpecialMove::CASTLING_KING_SIDE);
+        case 'q': return FigureType::QUEEN;
+        case 'r': return FigureType::ROOK;
+        case 'b': return FigureType::BISHOP;
+        case 'n': return FigureType::KNIGHT;
+        default: return FigureType::NONE;
 
         }
 
-        if (std::strcmp(str, "O-O-O") == 0 || std::strcmp(str, "0-0-0") == 0)
+    }
+
+} 
+
+HumanPlayer::HumanPlayer(const MyString& name): 
+    Player(name) {}
+
+Move HumanPlayer::requestMove(Board& board, Color side)
+{
+
+    while (true) 
+    {
+
+        std::cout << (side == Color::WHITE ? "White" : "Black") << " > ";
+        MyString input;
+        std::cin >> input;
+
+        if (!std::cin) std::exit(0);
+
+        if (input == "O-O" || input == "o-o" || input == "0-0") 
         {
 
-            Position from = (mover == Color::WHITE ? Position{ 7,4 } : Position{ 0,4 });
-            Position to = (mover == Color::WHITE ? Position{ 7,2 } : Position{ 0,2 });
+            int8_t row = (side == Color::WHITE ? 7 : 0);
+            Move move(Position(row, 4), Position(row, 6), SpecialMove::CASTLING_KING_SIDE);
 
-            return Move(from, to, SpecialMove::CASTLING_QUEEN_SIDE);
-
-        }
-
-        size_t len = std::strlen(str);
-
-        if (len >= 4)
-        {
-
-            char buffer1[3] = { str[0], str[1], '\0' };
-            char buffer2[3] = { str[2], str[3], '\0' };
-            Position from, to;
-
-            if (tryParseSquare(buffer1, from) && tryParseSquare(buffer2, to))
+            if (!board.isLegalMove(move, side))
             {
 
-                SpecialMove specialMove = SpecialMove::NORMAL;
-                FigureType promo = FigureType::QUEEN;
-
-                if (len == 5)
-                {
-
-                    specialMove = SpecialMove::PROMOTION;
-                    char x = str[4];
-                    char P = (x >= 'a' && x <= 'z') ? (x - 'a' + 'A') : x;
-
-                    switch (P)
-                    {
-
-                    case 'R': promo = FigureType::ROOK; break;
-                    case 'N': promo = FigureType::KNIGHT; break;
-                    case 'B': promo = FigureType::BISHOP; break;
-                    default: promo = FigureType::QUEEN; break;
-
-                    }
-
-                }
-
-                return Move(from, to, specialMove, promo);
+                std::cout << "Illegal move – try again" << std::endl;
+                continue;
 
             }
 
+            return move;
+                
         }
 
-        std::cout << "Invalid input, try again." << std::endl;
+        if (input == "O-O-O" || input == "o-o-o" || input == "0-0-0") 
+        {
+
+            int8_t row = (side == Color::WHITE ? 7 : 0);
+            Move move(Position(row, 4), Position(row, 2), SpecialMove::CASTLING_QUEEN_SIDE);
+
+            if (!board.isLegalMove(move, side))
+            {
+
+                std::cout << "Illegal move – try again" << std::endl;
+                continue;
+
+            }
+
+            return move;
+
+        }
+
+        if (input.size() < 4)
+        {
+
+            std::cout << "Bad format" << std::endl; 
+            continue; 
+
+        }
+
+        MyString fromStr = input.substr(0, 2);
+        MyString toStr = input.substr(2, 2);
+
+        Position from;
+        Position to;
+
+        if (!parseSquare(fromStr, from) || !parseSquare(toStr, to)) 
+        {
+
+            std::cout << "Bad squares" << std::endl;
+            continue;
+
+        }
+
+        FigureType promote = FigureType::NONE;
+        SpecialMove specialMove = SpecialMove::NORMAL;
+
+        if (input.size() == 5) 
+        {
+
+            promote = promoFromChar(input[4]);
+
+            if (promote == FigureType::NONE) 
+            {
+
+                std::cout << "Bad promotion piece" << std::endl;
+                continue;
+
+            }
+
+            specialMove = SpecialMove::PROMOTION;
+
+        }
+
+        if (specialMove == SpecialMove::NORMAL &&
+            std::abs(from.row - to.row) == 2) 
+        {
+
+            specialMove = SpecialMove::DOUBLE_PAWN;
+
+        }
+           
+        Move move(from, to, specialMove, promote);
+
+        if (!board.isLegalMove(move, side)) 
+        {
+
+            std::cout << "Illegal move – try again" << std::endl;
+            continue;
+
+        }
+
+        return move;
 
     }
 
 }
-
