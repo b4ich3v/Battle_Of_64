@@ -4,33 +4,39 @@
 Knight::Knight(Color color): 
     Figure(color, FigureType::KNIGHT) {}
 
-MyVector<Position> Knight::generateMoves(const Board& board, const Position& from) const
+MyVector<Move> Knight::generateMoves(const Board& board,
+    const Position& from) const
 {
 
-    static const MyPair<int, int> offsets[] = 
+    static const int8_t delta[8][2] = 
     {
 
-        {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
-        {1, 2}, {1, -2}, {-1, 2}, {-1, -2}
+        {-2,-1},{-2,1},{-1,-2},{-1,2},
+        {1,-2},{1,2},{2,-1},{2,1}
 
     };
 
-    MyVector<Position> moves;
+    MyVector<Move> move;
 
     for (int i = 0; i < 8; i++)
     {
 
-        Position to{ from.row + offsets[i].first, from.col + offsets[i].second };
+        int8_t deltaRow = delta[i][0];
+        int8_t deltoCol = delta[i][1];
+
+        Position to{ (int8_t)(from.row + deltaRow),
+                     (int8_t)(from.col + deltoCol) };
 
         if (!board.isValid(to)) continue;
 
-        Figure* occupant = board.at(to);
-        
-        if (occupant == nullptr || occupant->getColor() != this->getColor())  moves.push_back(to);
+        const Figure* currentFigure = board.at(to);
+
+        if (currentFigure == nullptr || currentFigure->getColor() != getColor())
+            move.push_back(Move(from, to));
 
     }
 
-    return moves;
+    return move;
 
 }
 
