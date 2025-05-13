@@ -1,26 +1,29 @@
 #include "Rook.h"
 
+static MyVector<MyPair<int, int>> makeRookDirs()
+{
+
+    MyVector<MyPair<int, int>> dirs;
+
+    dirs.push_back(MyPair<int, int>(-1, 0));   
+    dirs.push_back(MyPair<int, int>(1, 0));   
+    dirs.push_back(MyPair<int, int>(0, -1));   
+    dirs.push_back(MyPair<int, int>(0, 1));   
+
+    return dirs;
+
+}
+
+static const MyVector<MyPair<int, int>> ROOK_DIRS = makeRookDirs();
+
 Rook::Rook(Color color): 
     SlidingFigure(color, FigureType::ROOK) {}
 
-MyVector<Position> Rook::generateMoves(const Board& board, const Position& from) const
+MyVector<Move> Rook::generateMoves(const Board& board,
+    const Position& from) const
 {
 
-    static const MyVector<MyPair<int, int>> dirs = [] 
-    {
-
-        MyVector<MyPair<int, int>> directions;
-
-        directions.push_back({ 1, 0 });
-        directions.push_back({ -1, 0 });
-        directions.push_back({ 0, 1 });
-        directions.push_back({ 0, -1 });
-
-        return directions;
-
-    }();
-
-    return generateSliding(board, from, dirs);
+    return generateSliding(board, from, ROOK_DIRS);
 
 }
 
@@ -31,9 +34,9 @@ void Rook::accept(Visitor& visitor) const
 
 }
 
-char Rook::symbol() const 
+char Rook::symbol() const
 {
 
-    return (color == Color::WHITE ? 'R' : 'r');
+    return (getColor() == Color::WHITE ? 'R' : 'r');
 
 }
