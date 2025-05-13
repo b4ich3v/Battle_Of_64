@@ -6,7 +6,7 @@ enum class SpecialMove: uint8_t
 {
 
     NORMAL,
-    CASTLING_KING_SIDE,
+    CASTLING_KING_SIDE, 
     CASTLING_QUEEN_SIDE,
     EN_PASSANT,
     PROMOTION,
@@ -14,7 +14,7 @@ enum class SpecialMove: uint8_t
 
 };
 
-struct Move
+struct Move 
 {
 public:
 
@@ -26,8 +26,10 @@ public:
 
     Move();
 
-    Move(Position f, Position t,
-        SpecialMove s = SpecialMove::NORMAL,FigureType p = FigureType::QUEEN);
+    Move(Position from, Position to, 
+        SpecialMove specialMove = SpecialMove::NORMAL, FigureType type = FigureType::QUEEN);
+
+    SpecialMove getSpecial() const;
 
     void execute(class Board& board) const;
 
