@@ -64,3 +64,39 @@ MyString operator + (const MyString& left, const MyString& right);
 MyString operator + (const MyString& str, const char* data);
 
 MyString operator + (const char* data, const MyString& str);
+
+bool operator == (const MyString& left, const MyString& right);
+
+bool operator != (const MyString& left, const MyString& right);
+
+bool operator < (const MyString& left, const MyString& right);
+
+bool operator > (const MyString& left, const MyString& right);
+
+bool operator <= (const MyString& left, const MyString& right);
+
+bool operator >= (const MyString& left, const MyString& right);
+
+bool operator == (const MyString& left, const char* right);
+
+bool operator != (const MyString& left, const char* right);
+
+bool operator < (const MyString& left, const char* right);
+
+bool operator > (const MyString& left, const char* right);
+
+bool operator <= (const MyString& left, const char* right);
+
+bool operator >= (const MyString& left, const char* right);
+
+bool operator == (const char* left, const MyString& right);
+
+bool operator != (const char* left, const MyString& right);
+
+bool operator < (const char* left, const MyString& right);
+
+bool operator > (const char* left, const MyString& right);
+
+bool operator <= (const char* left, const MyString& right);
+
+bool operator >= (const char* left, const MyString& right);
