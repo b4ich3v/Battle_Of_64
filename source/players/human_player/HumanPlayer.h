@@ -1,14 +1,13 @@
-#pragma once
 #include "Player.h"
+#include "Move.h"
+#pragma once
 
-class HumanPlayer: public Player 
+class HumanPlayer: public Player
 {
 public:
 
-    explicit HumanPlayer(const MyString& name);
+    explicit HumanPlayer(const MyString& name = "Human");
 
-    static bool tryParseSquare(const char* buffer, Position& position);
-
-    Move requestMove(Board& board, Color mover) override;
+    Move requestMove(Board& board, Color side) override;
 
 };
