@@ -7,7 +7,7 @@ public:
 
     explicit Pawn(Color color);
 
-    MyVector<Position> generateMoves(Board const& board, Position const& from) const override;
+    MyVector<Move> generateMoves(Board const& board, Position const& from) const override;
 
     void accept(Visitor& visitor) const override;
 
