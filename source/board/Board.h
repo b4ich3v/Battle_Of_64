@@ -35,7 +35,7 @@ private:
     Board();                
 
     ~Board();      
-    
+
     Board(const Board&) = delete;
 
     Board& operator = (const Board&) = delete;
@@ -72,9 +72,11 @@ public:
 
     bool isInCheck(Color color) const;
 
-    bool isLegalMove(const Move& move, Color moverSide);
+    bool isEnPassantSquare(const Position& cap, Color pawnColor) const;
 
-    MyVector<Move> generateAllLegalMoves(Color mover);
+    MyVector<Move> generateAllLegalMoves(Color side);
+
+    bool isLegalMove(const Move& move, Color side);
 
     HistoryEntry peekHistory() const;
 
