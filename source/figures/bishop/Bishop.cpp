@@ -1,39 +1,42 @@
 #include "Bishop.h"
 
-Bishop::Bishop(Color color): 
-    SlidingFigure(color, FigureType::BISHOP) {}
-
-MyVector<Position> Bishop::generateMoves(const Board& board,const Position& from) const
+static MyVector<MyPair<int, int>> makeBishopDirs()
 {
 
-    static const MyVector<MyPair<int, int>> dirs = []
-    {
+    MyVector<MyPair<int, int>> dirs;
 
-        MyVector<MyPair<int, int>> directions;
+    dirs.push_back(MyPair<int, int>(-1, -1));
+    dirs.push_back(MyPair<int, int>(-1, 1));
+    dirs.push_back(MyPair<int, int>(1, -1));
+    dirs.push_back(MyPair<int, int>(1, 1));
 
-        directions.push_back({ 1,  1 });
-        directions.push_back({ 1, -1 });
-        directions.push_back({ -1, 1 });
-        directions.push_back({ -1, -1 });
-
-        return directions;
-
-    }();
-
-    return generateSliding(board, from, dirs);
+    return dirs;
 
 }
 
-void Bishop::accept(Visitor& visitor) const 
+static const MyVector<MyPair<int, int>> BISHOP_DIRS = makeBishopDirs();
+
+Bishop::Bishop(Color color): 
+    SlidingFigure(color, FigureType::BISHOP) {}
+
+MyVector<Move> Bishop::generateMoves(const Board& board,
+    const Position& from) const
+{
+    
+    return generateSliding(board, from, BISHOP_DIRS);
+
+}
+
+void Bishop::accept(Visitor& visitor) const
 {
 
     visitor.visit(*this);
 
 }
 
-char Bishop::symbol() const 
+char Bishop::symbol() const
 {
 
-    return (color == Color::WHITE ? 'B' : 'b');
+    return (getColor() == Color::WHITE ? 'B' : 'b');
 
 }
