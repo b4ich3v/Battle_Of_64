@@ -1,149 +1,145 @@
 #include "AIPlayer.h"
+#include "Figure.h"
+#include <climits>
+#include <cstdlib>     
 
-static const int DIRS[4][2] = { { 0, 1}, { 0, -1}, { 1, 0}, {-1, 0} };
-
-Node::Node(int x, int y, int effort) 
+namespace 
 {
 
-    this->x = x;
-    this->y = y;
-    this->effort = effort;
+    const int DIRS[4][2] = { {0,1},{0,-1},{1,0},{-1,0} };
 
-}
-
-bool Node::operator < (const Node& other) const 
-{
-
-    return effort > other.effort;
-
-}
-
-static bool isValid(int x, int y, int rows, int cols) 
-{
-
-    return x >= 0 && x < rows && y >= 0 && y < cols;
-
-}
-
-int minimumEffortPath(MyVector<MyVector<int>>& heights) 
-{
-
-    int rows = (int)heights.size();
-    if (rows == 0) return 0;
-    int cols = (int)heights[0].size();
-
-    MyVector<MyVector<int>> effortSoFar;
-
-    for (int row = 0; row < rows; row++)
+    bool inBounds(int x, int y, int rows, int cols)
     {
 
-        MyVector<int> currentRow;
-
-        for (int col = 0; col < cols; col++) 
-        {
-
-            currentRow.push_back(INT_MAX);
-
-        }
-
-        effortSoFar.push_back(currentRow);
+        return x >= 0 && x < rows && y >= 0 && y < cols;
 
     }
 
-    MyPriorityQueue<Node> pq;
-    effortSoFar[0][0] = 0;
-    pq.push(Node(0,0,0), 0);
-
-    while (!pq.empty())
+    int minimumEffortPath(MyVector<MyVector<int>>& heights)
     {
 
-        Node current = pq.top();
-        pq.pop();
+        int rowsCount = heights.size(); if (!rowsCount) return 0;
+        int colsCount = heights[0].size();
 
-        if (current.effort != effortSoFar[current.x][current.y]) continue;
-        if (current.x == rows - 1 && current.y == cols - 1)  return current.effort;
-           
-        for (int i = 0; i < 4; i++) 
+        MyVector<MyVector<int>> best;
+
+        for (int currentRowIndex = 0; currentRowIndex < rowsCount; currentRowIndex++)
         {
 
-            int newX = current.x + DIRS[i][0];
-            int newY = current.y + DIRS[i][1];
+            MyVector<int> row;
 
-            if (!isValid(newX, newY, rows, cols)) continue;
-                
-            int diff = heights[current.x][current.y] - heights[newX][newY];
-            if (diff < 0) diff = -diff;
-            int newEffort = current.effort > diff ? current.effort : diff;
-
-            if (newEffort < effortSoFar[newX][newY]) 
+            for (int currentColIndex = 0; currentColIndex < colsCount; currentColIndex++)
             {
 
-                effortSoFar[newX][newY] = newEffort;
-                pq.push(Node(newX, newY, newEffort), newEffort);
+                row.push_back(INT_MAX);
+
+            }
+
+            best.push_back(row);
+
+        }
+
+        best[0][0] = 0;
+        MyPriorityQueue<Node> pq;
+        pq.push(Node(0, 0, 0), 0);
+
+        while (!pq.empty())
+        {
+
+            Node currentNode = pq.top(); pq.pop();
+
+            if (currentNode.effort != best[currentNode.x][currentNode.y]) continue;
+            if (currentNode.x == rowsCount - 1 && currentNode.y == colsCount - 1) return currentNode.effort;
+
+            for (int directionIndex = 0; directionIndex < 4; directionIndex++)
+            {
+
+                int newX = currentNode.x + DIRS[directionIndex][0];
+                int newY = currentNode.y + DIRS[directionIndex][1];
+
+                if (!inBounds(newX, newY, rowsCount, colsCount)) continue;
+
+                int diff = std::abs(heights[currentNode.x][currentNode.y] - heights[newX][newY]);
+                int newEffort = std::max(currentNode.effort, diff);
+
+                if (newEffort < best[newX][newY])
+                {
+
+                    best[newX][newY] = newEffort;
+                    pq.push(Node(newX, newY, newEffort), newEffort);
+
+                }
 
             }
 
         }
 
-    }
+        return 0;
 
-    return effortSoFar[rows - 1][cols - 1] == INT_MAX ? 0: effortSoFar[rows - 1][cols - 1];
+    }
 
 }
 
-AIPlayer::AIPlayer(const MyString& name):
+Node::Node(int x, int y, int effort): x(x), y(y), effort(effort) {}
+
+bool Node::operator < (const Node& other) const 
+{ 
+
+    return effort > other.effort; 
+
+} 
+
+AIPlayer::AIPlayer(const MyString& name) :
     Player(name) {}
 
-Move AIPlayer::requestMove(Board& board, Color mover)  
+Move AIPlayer::requestMove(Board& board, Color mover)
 {
 
-    MyVector<Move> pseudo = board.generateAllLegalMoves(mover);
-    if (pseudo.empty()) return Move{ {-1,-1},{-1,-1} };
+    MyVector<Move> legalMoves = board.generateAllLegalMoves(mover);
+    if (legalMoves.empty()) return Move();               
 
     MyPriorityQueue<Move, int> pq;
 
-    for (size_t i = 0; i < pseudo.size(); i++) 
+    for (std::size_t i = 0; i < legalMoves.size(); i++)
     {
 
-        const Move move = pseudo[i];
-        board.applyMove(move);
-        MyVector<MyVector<int>> heights;
+        const Move& mv = legalMoves[i];
+        board.applyMove(mv);
+        MyVector<MyVector<int>> h;
 
-        for (int row = 0; row < 8; row++)
+        for (int currentRowIndex = 0; currentRowIndex < 8;currentRowIndex++)
         {
 
-            MyVector<int> currentRow;
+            MyVector<int> row;
 
-            for (int col = 0; col < 8; col++)
+            for (int currentColIndex = 0;currentColIndex < 8;currentColIndex++) row.push_back(0);
             {
 
-                currentRow.push_back(0);
-
-            }
-
-            heights.push_back(currentRow);
-
-        }
-
-        for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++) 
-        {
-
-            for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
-            {
-
-                auto* figure = board.at({ currentRowIndex,currentColIndex });
-                heights[currentRowIndex][currentColIndex] = figure ? (figure->getColor() == mover ? 1 : 2) : 0;
+                h.push_back(row);
 
             }
 
         }
 
-        int cost = minimumEffortPath(heights);
-        board.undoMove(move);
-        pq.push(move, cost);
+        for (int currentRowIndex = 0;currentRowIndex < 8;currentRowIndex++)
+        {
 
+            for (int currentColIndex = 0;currentColIndex < 8;currentColIndex++)
+            {
+
+                const Figure* currentFigure = board.at({ (int8_t)currentRowIndex,(int8_t)currentColIndex });
+                if (currentFigure) h[currentRowIndex][currentColIndex] = (currentFigure->getColor() == mover ? 1 : 2);
+
+            }
+
+        }
+
+        int cost = minimumEffortPath(h);            
+        board.undoMove(mv);
+        pq.push(mv, cost); 
+       
     }
 
-    return pq.top();
-
+    return pq.top();    
+    
 }
