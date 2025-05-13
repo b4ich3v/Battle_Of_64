@@ -4,6 +4,8 @@
 #include "MyPair.hpp"
 #pragma once
 
+class Move;
+
 enum class Color: uint8_t
 {
 
@@ -22,6 +24,7 @@ inline Color oppositeColor(Color color)
 enum class FigureType: uint8_t
 {
 
+    NONE,
     PAWN,
     KNIGHT,
     BISHOP,
@@ -39,6 +42,7 @@ protected:
 
     Color color;
     FigureType type;
+    Position position;
 
 public:
 
@@ -48,7 +52,11 @@ public:
 
     FigureType getType() const;
 
-    virtual MyVector<Position> generateMoves(const Board& board, const Position& from) const = 0;
+    Position getPosition() const;
+
+    void setPosition(const Position& position);
+
+    virtual MyVector<Move> generateMoves(const Board& board, const Position& from) const = 0;
 
     virtual char symbol() const = 0;
 
