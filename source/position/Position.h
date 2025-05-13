@@ -13,3 +13,5 @@ public:
     bool operator == (Position const& other) const;
 
 };
+
+
