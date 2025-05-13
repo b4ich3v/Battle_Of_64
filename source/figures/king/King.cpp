@@ -4,49 +4,52 @@
 King::King(Color color): 
     Figure(color, FigureType::KING) {}
 
-MyVector<Position> King::generateMoves(const Board& board, const Position& from) const
+MyVector<Move> King::generateMoves(const Board& board,
+    const Position& from) const
 {
-    
-    static const MyPair<int, int> offsets[] = 
+
+    static const MyPair<int, int> offsets[8] = 
     {
 
-        {1, 0}, {1, 1}, {0, 1}, {-1, 1},
-        {-1, 0}, {-1, -1}, {0, -1}, {1, -1}
+        { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1},
+        {-1, 0}, {-1,-1}, { 0,-1}, { 1,-1}
 
     };
 
-    MyVector<Position> moves;
+    MyVector<Move> move;
 
     for (int i = 0; i < 8; i++)
     {
 
-        Position to { from.row + offsets[i].first, from.col + offsets[i].second };
+        Position to{ (int8_t)(from.row + offsets[i].first),
+                     (int8_t)(from.col + offsets[i].second) };
 
         if (!board.isValid(to)) continue;
 
-        Figure* occupant = board.at(to);
+        const Figure* occupied = board.at(to);
 
-        if (occupant == nullptr || occupant->getColor() != this->getColor()) moves.push_back(to);
+        if (occupied == nullptr || occupied->getColor() != getColor())
+            move.push_back(Move(from, to));          
 
     }
 
-    if (board.canCastleKingSide(color)) 
+    if (board.canCastleKingSide(getColor())) 
     {
 
-        Position ks{ from.row, from.col + 2 };
-        if (board.isValid(ks)) moves.push_back(ks);
+        Position kingSide{ from.row, from.col + 2 };    
+        move.push_back(Move(from, kingSide, SpecialMove::CASTLING_KING_SIDE));
 
     }
-   
-    if (board.canCastleQueenSide(color))
+
+    if (board.canCastleQueenSide(getColor())) 
     {
 
-        Position qs{ from.row, from.col - 2 };
-        if (board.isValid(qs)) moves.push_back(qs);
+        Position queenSide{ from.row, from.col - 2 };     
+        move.push_back(Move(from, queenSide, SpecialMove::CASTLING_QUEEN_SIDE));
 
     }
 
-    return moves;
+    return move;
 
 }
 
@@ -60,6 +63,6 @@ void King::accept(Visitor& visitor) const
 char King::symbol() const
 {
 
-    return (color == Color::WHITE ? 'K' : 'k');
+    return (getColor() == Color::WHITE ? 'K' : 'k');
 
 }
