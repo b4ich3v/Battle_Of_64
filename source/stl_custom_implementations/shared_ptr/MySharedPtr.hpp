@@ -1,5 +1,3 @@
-#include <cstddef>
-#include <utility>
 #pragma once
 
 template<typename T>
@@ -8,8 +6,8 @@ class MySharedPtr
 {
 private:
 
-    T* ptr;
-    size_t* count;
+    T* ptr;           
+    size_t* count;    
 
     void release();
 
@@ -49,10 +47,10 @@ public:
 
 template<typename T>
 
-void MySharedPtr<T>::release()
+void MySharedPtr<T>::release() 
 {
 
-    if (count && --(*count) == 0)
+    if (count && --(*count) == 0) 
     {
 
         delete ptr;
@@ -67,18 +65,18 @@ void MySharedPtr<T>::release()
 
 template<typename T>
 
-MySharedPtr<T>::MySharedPtr() noexcept:
+MySharedPtr<T>::MySharedPtr() noexcept: 
     ptr(nullptr), count(nullptr) {}
 
 template<typename T>
 
-MySharedPtr<T>::MySharedPtr(T* ptr):
+MySharedPtr<T>::MySharedPtr(T* ptr) :
     ptr(ptr), count(new size_t(1)) {}
 
 template<typename T>
 
-MySharedPtr<T>::MySharedPtr(const MySharedPtr& other) noexcept:
-    ptr(other.ptr), count(other.count)
+MySharedPtr<T>::MySharedPtr(const MySharedPtr& other) noexcept: 
+    ptr(other.ptr), count(other.count) 
 {
 
     if (count) ++(*count);
@@ -87,8 +85,8 @@ MySharedPtr<T>::MySharedPtr(const MySharedPtr& other) noexcept:
 
 template<typename T>
 
-MySharedPtr<T>::MySharedPtr(MySharedPtr&& other) noexcept:
-    ptr(other.ptr), count(other.count)
+MySharedPtr<T>::MySharedPtr(MySharedPtr&& other) noexcept: 
+    ptr(other.ptr), count(other.count) 
 {
 
     other.ptr = nullptr;
@@ -98,10 +96,10 @@ MySharedPtr<T>::MySharedPtr(MySharedPtr&& other) noexcept:
 
 template<typename T>
 
-MySharedPtr<T>& MySharedPtr<T>::operator = (const MySharedPtr& other) noexcept
+MySharedPtr<T>& MySharedPtr<T>::operator = (const MySharedPtr& other) noexcept 
 {
 
-    if (this != &other)
+    if (this != &other) 
     {
 
         release();
@@ -109,7 +107,6 @@ MySharedPtr<T>& MySharedPtr<T>::operator = (const MySharedPtr& other) noexcept
         count = other.count;
 
         if (count) ++(*count);
-        
     }
 
     return *this;
@@ -121,7 +118,7 @@ template<typename T>
 MySharedPtr<T>& MySharedPtr<T>::operator = (MySharedPtr&& other) noexcept
 {
 
-    if (this != &other)
+    if (this != &other) 
     {
 
         release();
@@ -138,7 +135,7 @@ MySharedPtr<T>& MySharedPtr<T>::operator = (MySharedPtr&& other) noexcept
 
 template<typename T>
 
-MySharedPtr<T>::~MySharedPtr()
+MySharedPtr<T>::~MySharedPtr() 
 {
 
     release();
@@ -147,7 +144,7 @@ MySharedPtr<T>::~MySharedPtr()
 
 template<typename T>
 
-T* MySharedPtr<T>::get() const noexcept
+T* MySharedPtr<T>::get() const noexcept 
 {
 
     return ptr;
@@ -156,7 +153,7 @@ T* MySharedPtr<T>::get() const noexcept
 
 template<typename T>
 
-T& MySharedPtr<T>::operator * () const noexcept
+T& MySharedPtr<T>::operator * () const noexcept 
 {
 
     return *ptr;
@@ -165,7 +162,7 @@ T& MySharedPtr<T>::operator * () const noexcept
 
 template<typename T>
 
-T* MySharedPtr<T>::operator -> () const noexcept
+T* MySharedPtr<T>::operator -> () const noexcept 
 {
 
     return ptr;
@@ -174,7 +171,7 @@ T* MySharedPtr<T>::operator -> () const noexcept
 
 template<typename T>
 
-size_t MySharedPtr<T>::use_count() const noexcept
+size_t MySharedPtr<T>::use_count() const noexcept 
 {
 
     return count ? *count : 0;
@@ -183,7 +180,7 @@ size_t MySharedPtr<T>::use_count() const noexcept
 
 template<typename T>
 
-MySharedPtr<T>::operator bool() const noexcept
+MySharedPtr<T>::operator bool() const noexcept 
 {
 
     return ptr != nullptr;
@@ -192,7 +189,7 @@ MySharedPtr<T>::operator bool() const noexcept
 
 template<typename T>
 
-void MySharedPtr<T>::reset() noexcept
+void MySharedPtr<T>::reset() noexcept 
 {
 
     release();
@@ -201,11 +198,11 @@ void MySharedPtr<T>::reset() noexcept
 
 template<typename T>
 
-void MySharedPtr<T>::reset(T* ptr)
+void MySharedPtr<T>::reset(T* ptr) 
 {
 
     release();
-    this->ptr = ptr;
+    ptr = ptr;
     count = new size_t(1);
 
 }
