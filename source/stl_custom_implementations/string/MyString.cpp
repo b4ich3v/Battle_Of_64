@@ -267,3 +267,107 @@ MyString operator + (const char* data, const MyString& str)
     return result;
 
 }
+
+static int lexCompare(const char* a, const char* b)
+{
+
+    while (*a && *a == *b) { ++a; ++b; }
+    return (unsigned char)*a - (unsigned char)*b;  
+
+}
+
+bool operator == (const MyString& left, const MyString& right)
+{
+
+    return std::strcmp(left.getData(), right.getData()) == 0;
+
+}
+
+bool operator != (const MyString& left, const MyString& right)
+{
+
+    return !(left == right);
+
+}
+
+bool operator < (const MyString& left, const MyString& right)
+{
+
+    return std::strcmp(left.getData(), right.getData()) < 0;
+
+}
+
+bool operator > (const MyString& left, const MyString& right)
+{
+
+    return right < left;
+
+}
+
+bool operator <= (const MyString& left, const MyString& right)
+{
+
+    return !(right < left);
+
+}
+
+bool operator >= (const MyString& left, const MyString& right)
+{
+
+    return !(left < right);
+
+}
+
+bool operator == (const MyString& left, const char* right)
+{
+
+    return std::strcmp(left.getData(), right) == 0;
+
+}
+
+bool operator != (const MyString& left, const char* right)
+{
+
+    return !(left == right);
+
+}
+
+bool operator < (const MyString& left, const char* right)
+{
+
+    return std::strcmp(left.getData(), right) < 0;
+
+}
+
+bool operator > (const MyString& left, const char* right)
+{
+
+    return std::strcmp(left.getData(), right) > 0;
+
+}
+
+bool operator <= (const MyString& left, const char* right)
+{
+
+    return !(left > right);
+
+}
+
+bool operator >= (const MyString& left, const char* right)
+{
+
+    return !(left < right);
+
+}
+
+bool operator == (const char* left, const MyString& right) { return right == left; }
+
+bool operator != (const char* left, const MyString& right) { return right != left; }
+
+bool operator < (const char* left, const MyString& right) { return std::strcmp(left, right.getData()) < 0; }
+
+bool operator > (const char* left, const MyString& right) { return std::strcmp(left, right.getData()) > 0; }
+
+bool operator <= (const char* left, const MyString& right) { return !(left > right); }
+
+bool operator >= (const char* left, const MyString& right) { return !(left < right); }
