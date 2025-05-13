@@ -75,6 +75,8 @@ void Board::set(const Position& position, Figure* figure)
     if (!isValid(position)) throw std::out_of_range("Position out of range");
     table[position.row][position.col] = figure;
 
+    if (figure) figure->setPosition(position);
+
 }
 
 void Board::accept(Visitor& visitor) const 
@@ -154,13 +156,13 @@ void Board::setupInitialPosition()
 
 }
 
-void Board::free()
+void Board::free() 
 {
-    
+
     for (size_t currentRowIndex = 0; currentRowIndex < table.size(); currentRowIndex++)
     {
 
-        for (size_t currentColIndex = 0; currentColIndex < table[currentRowIndex].size(); ++currentColIndex)
+        for (size_t currentColIndex = 0; currentColIndex < table[currentRowIndex].size(); currentColIndex++)
         {
 
             delete table[currentRowIndex][currentColIndex];
@@ -169,20 +171,7 @@ void Board::free()
         }
 
     }
-    
-    for (size_t i = 0; i < history.size(); ++i) 
-    {
 
-        if (history[i].captured) 
-        {
-
-            delete history[i].captured;
-            history[i].captured = nullptr;
-
-        }
-
-    }
-    
     table.clear();
     history.clear();
     castleKS.clear();
@@ -223,13 +212,30 @@ void Board::clear()
 
 }
 
-void Board::applyMove(const Move& move) 
+void Board::applyMove(const Move& move)
 {
-    
-    HistoryEntry entry(move, at(move.to), castleKS, castleQS);
 
-    move.execute(*this);
+    Figure* captured = nullptr;
+
+    if (move.getSpecial() == SpecialMove::EN_PASSANT) 
+    {
+        
+        Color moverColor = at(move.from)->getColor();
+        int8_t dir = (moverColor == Color::WHITE ? +1 : -1);
+        Position capPosition{ (int8_t)(move.to.row + dir), move.to.col };
+        captured = at(capPosition);
+
+    }
+    else 
+    {
+
+        captured = at(move.to);
+
+    }
+
+    HistoryEntry entry(move, captured, castleKS, castleQS);
     pushHistory(entry);
+    move.execute(*this);
 
 }
 
@@ -237,10 +243,6 @@ void Board::undoMove(const Move&)
 {
     
     auto entry = popHistory();
-
-    castleKS = entry.castleKingSide;
-    castleQS = entry.castleQueenSide;
-
     entry.move.undo(*this);
 
 }
@@ -309,7 +311,7 @@ bool Board::isUnderAttack(const Position& position, Color attacker) const
                 for (size_t i = 0; i < move.size(); i++)
                 {
 
-                    if (move[i] == position) return true;
+                    if (move[i].to == position) return true;
 
                 }
 
@@ -323,7 +325,7 @@ bool Board::isUnderAttack(const Position& position, Color attacker) const
 
 }
 
-bool Board::isInCheck(Color c) const 
+bool Board::isInCheck(Color color) const 
 {
     
     Position kingPosition{ -1,-1 };
@@ -337,7 +339,8 @@ bool Board::isInCheck(Color c) const
             if (Figure* currentFigure = at({ currentRowIndex,currentColIndex }))
             {
 
-                if (currentFigure->getColor() == c && currentFigure->symbol() == (c == Color::WHITE ? 'K' : 'k'))
+                if (currentFigure->getColor() == color && 
+                    currentFigure->symbol() == (color == Color::WHITE ? 'K' : 'k'))
                 {
 
                     kingPosition = { currentRowIndex,currentColIndex };
@@ -352,45 +355,29 @@ bool Board::isInCheck(Color c) const
         
     if (kingPosition.row < 0) throw std::runtime_error("isInCheck: king not found on board");
         
-    return isUnderAttack(kingPosition, oppositeColor(c));
+    return isUnderAttack(kingPosition, oppositeColor(color));
 
 }
 
-bool Board::isLegalMove(const Move& move, Color moverSide)
+bool Board::isEnPassantSquare(const Position& cap, Color pawnColor) const
 {
-    
-    if (Figure* currentFigure = at(move.from)) 
-    {
 
-        if (currentFigure->getColor() != moverSide) return false;
+    if (history.size() == 0) return false;
 
-    }
-    else return false;
+    const HistoryEntry& last = history[history.size() - 1];
+    const Move& move = last.move;          
 
-    auto pseudo = at(move.from)->generateMoves(*this, move.from);
-    bool found = false;
-
-    for (size_t i = 0; i < pseudo.size(); i++)
-    {
-
-        if (pseudo[i] == move.to) { found = true; break; }
-
-    }
-
-    if (!found) return false;
-
-    applyMove(move);
-    bool inCheck = isInCheck(moverSide);
-    undoMove(move);
-
-    return !inCheck;
+    if (move.special != SpecialMove::DOUBLE_PAWN) return false;
+       
+    int8_t targetRow = (pawnColor == Color::WHITE ? 3 : 4);
+    return (cap.row == targetRow && cap.col == move.to.col);
 
 }
 
-MyVector<Move> Board::generateAllLegalMoves(Color mover) 
+MyVector<Move> Board::generateAllLegalMoves(Color side)
 {
 
-    MyVector<Move> result;
+    MyVector<Move> allMoves;
 
     for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
     {
@@ -398,18 +385,17 @@ MyVector<Move> Board::generateAllLegalMoves(Color mover)
         for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
         {
 
-            Position from{ currentRowIndex, currentColIndex };
-            Figure* figure = at(from);
+            Figure* currentFigure = table[currentRowIndex][currentColIndex];
+            if (!currentFigure || currentFigure->getColor() != side) continue;
 
-            if (!figure || figure->getColor() != mover) continue;
-                
-            MyVector<Position> targets = figure->generateMoves(*this, from);
+            Position from{ (int8_t)currentRowIndex,(int8_t)currentColIndex };
+            MyVector<Move> moves = currentFigure->generateMoves(*this, from);
 
-            for (size_t i = 0; i < targets.size(); i++)
+            for (size_t i = 0; i < moves.size(); i++)
             {
-                Move m(from, targets[i]);
-                
-                if (isLegalMove(m, mover)) result.push_back(m);
+
+                if (isLegalMove(moves[i], side))
+                    allMoves.push_back(moves[i]);
 
             }
 
@@ -417,7 +403,17 @@ MyVector<Move> Board::generateAllLegalMoves(Color mover)
 
     }
 
-    return result;
+    return allMoves;
+
+}
+
+bool Board::isLegalMove(const Move& move, Color side)
+{
+
+    applyMove(move);                 
+    bool isValid = !isInCheck(side);
+    undoMove(move);                 
+    return isValid;
 
 }
 
