@@ -1,108 +1,82 @@
 #include "Pawn.h"
 #include "Board.h"
 
-Pawn::Pawn(Color color):
+Pawn::Pawn(Color color): 
     Figure(color, FigureType::PAWN) {}
 
-MyVector<Position> Pawn::generateMoves(Board const& board, Position const& from) const 
+MyVector<Move> Pawn::generateMoves(const Board& board,
+    const Position& from) const
 {
 
-    MyVector<Position> moves;
-    int dir = (color == Color::WHITE ? -1 : +1);
-    Position one{ from.row + dir, from.col };
+    MyVector<Move> move;
+    int8_t dir = (getColor() == Color::WHITE ? -1 : 1);
+    Position one{ (int8_t)(from.row + dir), from.col };
 
-    if (board.isValid(one) && board.at(one) == nullptr)
-    {
-        
-        if ((color == Color::WHITE && one.row == 0) ||
-            (color == Color::BLACK && one.row == 7))
-        {
-
-            moves.push_back(Move(from, one, SpecialMove::PROMOTION, FigureType::QUEEN).to);
-
-        }
-        else 
-        {
-
-            moves.push_back(one);
-
-        }
-        
-        bool home = (color == Color::WHITE && from.row == 6) || (color == Color::BLACK && from.row == 1);
-        Position two{ from.row + 2 * dir, from.col };
-
-        if (home && board.isValid(two) && board.at(two) == nullptr) 
-        {
-
-            moves.push_back(two);
-
-        }
-
-    }
-    
-    for (int dc = -1; dc <= 1; dc += 2)
+    if (board.isValid(one) && board.at(one) == nullptr) 
     {
 
-        Position cap{ from.row + dir, from.col + dc };
+        bool promo = (one.row == 0 || one.row == 7);
 
-        if (!board.isValid(cap)) continue;
+        move.push_back(Move(from, one, promo ? SpecialMove::PROMOTION:
+            SpecialMove::NORMAL, promo ? FigureType::QUEEN: FigureType::NONE));
 
-        Figure* occ = board.at(cap);
-        
-        if (occ && occ->getColor() != color) 
+        bool onHome = (getColor() == Color::WHITE && from.row == 6) ||
+            (getColor() == Color::BLACK && from.row == 1);
+
+        if (onHome) 
         {
-        
-            if ((color == Color::WHITE && cap.row == 0) ||
-                (color == Color::BLACK && cap.row == 7))
-            {
 
-                moves.push_back(cap); 
+            Position two{ static_cast<int8_t>(from.row + 2 * dir), from.col };
 
-            }
-            else
-            {
-
-                moves.push_back(cap);
-
-            }
-
-        }
-        
-        Position behind{ from.row, from.col + dc };
-        Figure* adj = board.isValid(behind) ? board.at(behind) : nullptr;
-
-        if (adj && adj->getType() == FigureType::PAWN && adj->getColor() != color)
-        {
-            
-            auto last = board.peekHistory();
-
-            if (last.move.special == SpecialMove::NORMAL &&
-                last.move.to == behind &&
-                abs(last.move.from.row - last.move.to.row) == 2) 
-            {
-                
-                moves.push_back(cap);
-
-            }
+            if (board.at(two) == nullptr)
+                move.push_back(Move(from, two, SpecialMove::DOUBLE_PAWN));
 
         }
 
     }
 
-    return moves;
+    for (int deltaCol = -1; deltaCol <= 1; deltaCol += 2)
+    {
+
+        Position capPosition{ (int8_t)(from.row + dir),
+            (int8_t)(from.col + deltaCol) };
+
+        if (!board.isValid(capPosition)) continue;
+
+        const Figure* target = board.at(capPosition);
+        bool promo = (capPosition.row == 0 || capPosition.row == 7);
+
+        if (target && target->getColor() != getColor())
+        {
+
+            move.push_back(Move(from, capPosition, promo ? SpecialMove::PROMOTION :
+                SpecialMove::NORMAL, promo ? FigureType::QUEEN : FigureType::NONE));
+
+        }
+
+        if (board.isEnPassantSquare(capPosition, getColor()))
+        {
+
+            move.push_back(Move(from, capPosition, SpecialMove::EN_PASSANT));
+
+        }
+
+    }
+
+    return move;
 
 }
 
-void Pawn::accept(Visitor& visitor) const
+void Pawn::accept(Visitor& visitor) const 
 {
 
-    visitor.visit(*this);
+    visitor.visit(*this); 
 
 }
 
-char Pawn::symbol() const 
+char Pawn::symbol() const
 {
 
-    return (color == Color::WHITE ? 'P' : 'p');
+    return (getColor() == Color::WHITE ? 'P' : 'p');
 
 }
