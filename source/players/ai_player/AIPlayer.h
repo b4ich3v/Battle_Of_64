@@ -1,5 +1,5 @@
 #include "Player.h"
-#include "MyPriorityQueue.hpp"   
+#include "MyPriorityQueue.hpp"
 #include "MyVector.hpp"
 #pragma once
 
@@ -9,21 +9,19 @@ public:
 
     int x = 0;
     int y = 0;
-    int effort;
-    
+    int effort = 0;
+
     Node(int x, int y, int effort);
 
     bool operator < (const Node& other) const;
 
 };
 
-int minimumEffortPath(MyVector<MyVector<int>>& heights);
-
 class AIPlayer: public Player 
 {
 public:
 
-    explicit AIPlayer(const MyString& name);
+    explicit AIPlayer(const MyString& name = "AI");
 
     Move requestMove(Board& board, Color mover) override;
 
