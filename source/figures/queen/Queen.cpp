@@ -1,31 +1,34 @@
 #include "Queen.h"
 
+static MyVector<MyPair<int, int>> makeQueenDirs()
+{
+
+    MyVector<MyPair<int, int>> dirs;
+   
+    dirs.push_back(MyPair<int, int>(-1, 0));
+    dirs.push_back(MyPair<int, int>(1, 0));
+    dirs.push_back(MyPair<int, int>(0, -1));
+    dirs.push_back(MyPair<int, int>(0, 1));
+    
+    dirs.push_back(MyPair<int, int>(-1, -1));
+    dirs.push_back(MyPair<int, int>(-1, 1));
+    dirs.push_back(MyPair<int, int>(1, -1));
+    dirs.push_back(MyPair<int, int>(1, 1));
+
+    return dirs;
+
+}
+
+static const MyVector<MyPair<int, int>> QUEEN_DIRS = makeQueenDirs();
+
 Queen::Queen(Color color): 
     SlidingFigure(color, FigureType::QUEEN) {}
 
-MyVector<Position> Queen::generateMoves(const Board& board, const Position& from) const
+MyVector<Move> Queen::generateMoves(const Board& board,
+    const Position& from) const
 {
 
-    static const MyVector<MyPair<int, int>> dirs = [] 
-    {
-
-        MyVector<MyPair<int, int>> directions;
-        MyPair<int, int> arr[] = { {1,0},{-1,0},{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1} };
-
-        int dirCount = sizeof(arr) / sizeof(arr[0]);
-
-        for (int i = 0; i < dirCount; i++) 
-        {
-
-            directions.push_back(arr[i]);
-
-        }
-
-        return directions;
-
-    }();
-
-    return generateSliding(board, from, dirs);
+    return generateSliding(board, from, QUEEN_DIRS);
 
 }
 
@@ -36,9 +39,9 @@ void Queen::accept(Visitor& visitor) const
 
 }
 
-char Queen::symbol() const 
+char Queen::symbol() const
 {
 
-    return (color == Color::WHITE ? 'Q' : 'q');
+    return (getColor() == Color::WHITE ? 'Q' : 'q');
 
 }
