@@ -5,7 +5,7 @@
 enum class SpecialMove: uint8_t
 {
 
-    NORMAL,
+    NORMAL, 
     CASTLING_KING_SIDE, 
     CASTLING_QUEEN_SIDE,
     EN_PASSANT,
