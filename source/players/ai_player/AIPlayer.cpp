@@ -1,72 +1,88 @@
 #include "AIPlayer.h"
-#include "Figure.h"
-#include <climits>
-#include <cstdlib>     
 
-namespace 
+AIPlayer::AIPlayer(int depth): maxDepth(depth) {}
+
+int AIPlayer::value(FigureType type)
 {
 
-    const int DIRS[4][2] = { {0,1},{0,-1},{1,0},{-1,0} };
-
-    bool inBounds(int x, int y, int rows, int cols)
+    switch (type)
     {
 
-        return x >= 0 && x < rows && y >= 0 && y < cols;
+    case FigureType::PAWN: return 100;
+    case FigureType::KNIGHT: return 320;
+    case FigureType::BISHOP: return 330;
+    case FigureType::ROOK: return 500;
+    case FigureType::QUEEN: return 900;
+    default: return 0;
 
     }
 
-    int minimumEffortPath(MyVector<MyVector<int>>& heights)
+}
+
+int AIPlayer::evaluate(const Board& board, MyColor side) const
+{
+
+    int score = 0;
+
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
     {
 
-        int rowsCount = heights.size(); if (!rowsCount) return 0;
-        int colsCount = heights[0].size();
-
-        MyVector<MyVector<int>> best;
-
-        for (int currentRowIndex = 0; currentRowIndex < rowsCount; currentRowIndex++)
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
         {
 
-            MyVector<int> row;
+            Figure* currentFigure = nullptr;
+            try { currentFigure = board.at({ (int8_t)currentRowIndex,(int8_t)currentColIndex }); }
+            catch (...) {}
 
-            for (int currentColIndex = 0; currentColIndex < colsCount; currentColIndex++)
-            {
+            if (!currentFigure) continue;
 
-                row.push_back(INT_MAX);
-
-            }
-
-            best.push_back(row);
+            int currentValue = value(currentFigure->getType());
+            score += (currentFigure->getColor() == side) ? currentValue : -currentValue;
 
         }
 
-        best[0][0] = 0;
-        MyPriorityQueue<Node> pq;
-        pq.push(Node(0, 0, 0), 0);
+    }
 
-        while (!pq.empty())
+    return score;
+
+}
+
+int AIPlayer::search(Board& board, int depth, int alpha, int beta, MyColor side)
+{
+
+    if (depth == 0) return evaluate(board, side);
+
+    bool anyMove = false;
+    int best = -100000;
+
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    {
+
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
         {
 
-            Node currentNode = pq.top(); pq.pop();
+            Figure* currentFigure = nullptr;
+            try { currentFigure = board.at({ (int8_t)currentRowIndex,(int8_t)currentColIndex }); }
+            catch (...) {}
 
-            if (currentNode.effort != best[currentNode.x][currentNode.y]) continue;
-            if (currentNode.x == rowsCount - 1 && currentNode.y == colsCount - 1) return currentNode.effort;
+            if (!currentFigure || currentFigure->getColor() != side) continue;
 
-            for (int directionIndex = 0; directionIndex < 4; directionIndex++)
+            auto moves = currentFigure->generateMoves(board, { (int8_t)currentRowIndex,(int8_t)currentColIndex });
+
+            for (size_t i = 0; i < moves.size(); i++)
             {
 
-                int newX = currentNode.x + DIRS[directionIndex][0];
-                int newY = currentNode.y + DIRS[directionIndex][1];
-
-                if (!inBounds(newX, newY, rowsCount, colsCount)) continue;
-
-                int diff = std::abs(heights[currentNode.x][currentNode.y] - heights[newX][newY]);
-                int newEffort = std::max(currentNode.effort, diff);
-
-                if (newEffort < best[newX][newY])
+                if (board.isLegalMove(moves[i], side))
                 {
+                    anyMove = true;
+                    board.applyMove(moves[i]);
 
-                    best[newX][newY] = newEffort;
-                    pq.push(Node(newX, newY, newEffort), newEffort);
+                    int score = -search(board, depth - 1, -beta, -alpha, oppositeColor(side));
+                    board.undoMove(moves[i]);
+
+                    if (score > best)  best = score;
+                    if (score > alpha) alpha = score;
+                    if (alpha >= beta) return alpha;
 
                 }
 
@@ -74,72 +90,65 @@ namespace
 
         }
 
-        return 0;
-
     }
+
+    if (!anyMove) return evaluate(board, side);
+
+    return best;
 
 }
 
-Node::Node(int x, int y, int effort): x(x), y(y), effort(effort) {}
-
-bool Node::operator < (const Node& other) const 
-{ 
-
-    return effort > other.effort; 
-
-} 
-
-AIPlayer::AIPlayer(const MyString& name) :
-    Player(name) {}
-
-Move AIPlayer::requestMove(Board& board, Color mover)
+Move AIPlayer::getMove(Board& board, MyColor side)
 {
 
-    MyVector<Move> legalMoves = board.generateAllLegalMoves(mover);
-    if (legalMoves.empty()) return Move();               
+    Move bestMove;
+    int  bestScore = -100000, alpha = -100000, beta = 100000;
 
-    MyPriorityQueue<Move, int> pq;
-
-    for (std::size_t i = 0; i < legalMoves.size(); i++)
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
     {
 
-        const Move& mv = legalMoves[i];
-        board.applyMove(mv);
-        MyVector<MyVector<int>> h;
-
-        for (int currentRowIndex = 0; currentRowIndex < 8;currentRowIndex++)
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
         {
 
-            MyVector<int> row;
+            Figure* currentFigure = nullptr;
+            try { currentFigure = board.at({ (int8_t)currentRowIndex,(int8_t)currentColIndex }); }
+            catch (...) {}
 
-            for (int currentColIndex = 0;currentColIndex < 8;currentColIndex++) row.push_back(0);
+            if (!currentFigure || currentFigure->getColor() != side) continue;
+
+            auto moves = currentFigure->generateMoves(board, { (int8_t)currentRowIndex,(int8_t)currentColIndex });
+
+            for (size_t i = 0; i < moves.size(); i++)
             {
 
-                h.push_back(row);
+                if (board.isLegalMove(moves[i], side))
+                {
+
+                    board.applyMove(moves[i]);
+
+                    int score = -search(board, maxDepth - 1, -beta, -alpha, oppositeColor(side));
+                    board.undoMove(moves[i]);
+
+                    if (score > bestScore)
+                    {
+
+                        bestScore = score;
+                        bestMove = moves[i];
+
+                    }
+
+                    if (score > alpha) alpha = score;
+
+                }
 
             }
 
         }
 
-        for (int currentRowIndex = 0;currentRowIndex < 8;currentRowIndex++)
-        {
-
-            for (int currentColIndex = 0;currentColIndex < 8;currentColIndex++)
-            {
-
-                const Figure* currentFigure = board.at({ (int8_t)currentRowIndex,(int8_t)currentColIndex });
-                if (currentFigure) h[currentRowIndex][currentColIndex] = (currentFigure->getColor() == mover ? 1 : 2);
-
-            }
-
-        }
-
-        int cost = minimumEffortPath(h);            
-        board.undoMove(mv);
-        pq.push(mv, cost); 
-       
     }
 
-    return pq.top();    
-    
+    return bestMove;
+
 }
+
+
