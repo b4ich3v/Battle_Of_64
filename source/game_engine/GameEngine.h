@@ -6,13 +6,20 @@
 #include "Board.h"
 #include "Move.h"
 #include "Position.h"
+#include "Player.h"
+#include "HumanPlayer.h"
+#include "AIPlayer.h"
 #pragma once
 
-class GameEngine 
+class GameEngine
 {
 private:
 
     VisitorVisualization* vizualizator = nullptr;
+
+    Player* whitePlayer = nullptr;
+    Player* blackPlayer = nullptr;
+    int mode = 0;
 
     Gdiplus::Image* gif = nullptr;
     GUID dimID;
@@ -55,4 +62,3 @@ public:
     int run(HINSTANCE hInst, int nShow);
 
 };
-
