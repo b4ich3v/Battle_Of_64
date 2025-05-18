@@ -1,11 +1,8 @@
-#include "Player.h" 
+#include "Player.h"
 
-Player::Player(const MyString& name): 
-	name(name) {}
-
-const MyString& Player::getName() const
+void Player::setPendingMove(const Move& move)
 {
 
-	return name;
+	pending = move;
 
 }
