@@ -1,1 +1,544 @@
+#include "GameEngine.h"
+#include "Figure.h"
+#include <cstdlib>
+
+using namespace Gdiplus;
+
+#ifndef GET_X_LPARAM
+#define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
+#endif
+
+GameEngine& GameEngine::instance() 
+{
+
+    static GameEngine inst;
+    return inst;
+
+}
+
+GameEngine::GameEngine(): gif(nullptr), delays(nullptr)
+{
+
+    GdiplusStartupInput in{};
+
+    if (GdiplusStartup(&gdipToken, &in, nullptr) != Ok)
+        throw std::runtime_error("Cannot start GDI+");
+
+    vizualizator = new VisitorVisualization(80);   
+
+}
+
+GameEngine::~GameEngine()
+{
+
+    delete vizualizator;          
+    delete gif;
+    delete[] delays;
+    GdiplusShutdown(gdipToken);  
+
+}
+
+int GameEngine::run(HINSTANCE inst, int nShow)
+{
+
+    hInst = inst;                 
+
+
+    initGifWindow();              
+    ShowWindow(hMainWnd, nShow);  
+
+    MSG message;
+
+    while (GetMessage(&message, nullptr, 0, 0))
+    {
+
+        TranslateMessage(&message);
+        DispatchMessage(&message);
+
+    }
+
+    return static_cast<int>(message.wParam);
+
+}
+
+void GameEngine::initGifWindow() 
+{
+
+    WNDCLASS wc{};
+    wc.lpszClassName = L"GIFWnd";
+    wc.hInstance = hInst;
+    wc.lpfnWndProc = MainWndProc;
+    wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+    RegisterClass(&wc);
+
+    hMainWnd = CreateWindowW(L"GIFWnd", L"GDI+ Animated GIF", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+        CW_USEDEFAULT, CW_USEDEFAULT, 1280, 740,
+        nullptr, nullptr, hInst, nullptr);
+
+    LONG style = GetWindowLong(hMainWnd, GWL_STYLE);
+
+    style &= ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME);
+    SetWindowLong(hMainWnd, GWL_STYLE, style);
+    SetWindowPos(hMainWnd, nullptr, 0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+}
+
+void GameEngine::initChessWindow() 
+{
+
+    WNDCLASS wc{};
+
+    wc.lpszClassName = L"ChessWnd";
+    wc.hInstance = hInst;
+    wc.lpfnWndProc = ChessWndProc;
+    wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+    RegisterClass(&wc);
+
+    hChessWnd = CreateWindowW(L"ChessWnd", L"My Chess Game", WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, 657, 681,
+        nullptr, nullptr, hInst, nullptr);
+
+}
+
+struct PromoData 
+{
+public:
+
+    FigureType result; 
+
+};
+
+static LRESULT CALLBACK PromoProc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+
+    PromoData* promoData = reinterpret_cast<PromoData*>(GetWindowLongPtr(wnd, GWLP_USERDATA));
+
+    switch (msg)
+    {
+
+    case WM_CREATE:
+    {
+
+        promoData = reinterpret_cast<PromoData*>(reinterpret_cast<LPCREATESTRUCT>(lp)->lpCreateParams);
+        SetWindowLongPtr(wnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(promoData));
+        return 0;
+
+    }
+    case WM_COMMAND:
+    {
+
+        switch (LOWORD(wp))
+        {
+
+        case 100: promoData->result = FigureType::QUEEN; EndDialog(wnd, 1); break;
+        case 101: promoData->result = FigureType::ROOK; EndDialog(wnd, 1); break;
+        case 102: promoData->result = FigureType::BISHOP; EndDialog(wnd, 1); break;
+        case 103: promoData->result = FigureType::KNIGHT; EndDialog(wnd, 1); break;
+
+        }
+
+        break;
+
+    }
+    case WM_CLOSE: EndDialog(wnd, 0); break;
+
+    }
+
+    return 0;
+
+}
+
+FigureType GameEngine::askPromotion(HWND parent)
+{
+
+    static bool registered = false;
+
+    if (!registered) 
+    {
+
+        WNDCLASS wc{}; wc.lpszClassName = L"PromoDlg"; wc.hInstance = hInst; wc.lpfnWndProc = PromoProc; wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+        RegisterClass(&wc); registered = true;
+
+    }
+
+    PromoData promoData{ FigureType::QUEEN };
+    HWND dlg = CreateWindowEx(WS_EX_DLGMODALFRAME, L"PromoDlg", L"Promotion",
+        WS_POPUP | WS_CAPTION | WS_SYSMENU,
+        CW_USEDEFAULT, CW_USEDEFAULT, 340, 120,
+        parent, nullptr, hInst, &promoData);
+
+    CreateWindowW(L"STATIC", L"Choose piece:", WS_CHILD | WS_VISIBLE,
+        10, 10, 320, 20, dlg, nullptr, hInst, nullptr);
+    CreateWindowW(L"BUTTON", L"Queen", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        10, 40, 75, 35, dlg, reinterpret_cast<HMENU>(100), hInst, nullptr);
+    CreateWindowW(L"BUTTON", L"Rook", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        90, 40, 75, 35, dlg, reinterpret_cast<HMENU>(101), hInst, nullptr);
+    CreateWindowW(L"BUTTON", L"Bishop", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        170, 40, 75, 35, dlg, reinterpret_cast<HMENU>(102), hInst, nullptr);
+    CreateWindowW(L"BUTTON", L"Knight", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        250, 40, 75, 35, dlg, reinterpret_cast<HMENU>(103), hInst, nullptr);
+
+    RECT pr; GetWindowRect(parent, &pr);
+    int px = pr.left + (pr.right - pr.left) / 2 - 170;
+    int py = pr.top + (pr.bottom - pr.top) / 2 - 60;
+    SetWindowPos(dlg, HWND_TOP, px, py, 340, 120, SWP_SHOWWINDOW);
+
+    EnableWindow(parent, FALSE);
+    MSG message; 
+
+    while (IsWindow(dlg) && GetMessage(&message, nullptr, 0, 0)) 
+    {
+
+        if (!IsDialogMessage(dlg, &message)) { TranslateMessage(&message); DispatchMessage(&message); }
+
+    }
+
+    EnableWindow(parent, TRUE);
+    SetActiveWindow(parent);
+
+    return promoData.result;
+
+}
+
+void GameEngine::paintChess(HWND wnd, HDC hdc) 
+{
+
+    RECT rc; GetClientRect(wnd, &rc);
+    int w = rc.right - rc.left;
+    int h = rc.bottom - rc.top;
+
+    HDC mem = CreateCompatibleDC(hdc);
+    HBITMAP bm = CreateCompatibleBitmap(hdc, w, h);
+    HBITMAP old = static_cast<HBITMAP>(SelectObject(mem, bm));
+
+    Graphics g(mem);
+    g.SetSmoothingMode(SmoothingModeHighQuality);
+    g.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+
+    vizualizator->setGraphics(&g);
+    Board::instance().accept(*vizualizator);
+
+    if (dragging && drag_piece != Piece::NONE) 
+    {
+
+        Image* img = vizualizator->getImage(drag_piece);
+        if (img) g.DrawImage(img, drag_mouse_x - 40, drag_mouse_y - 40, 80, 80);
+
+    }
+
+    BitBlt(hdc, 0, 0, w, h, mem, 0, 0, SRCCOPY);
+    SelectObject(mem, old); DeleteObject(bm); DeleteDC(mem);
+
+}
+
+LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+
+    GameEngine& engine = GameEngine::instance();
+
+    switch (msg)
+    {
+
+    case WM_CREATE:    
+    {
+        
+        engine.gif = Image::FromFile(L"background.gif");
+
+        if (!engine.gif || engine.gif->GetLastStatus() != Ok)
+        {
+
+            MessageBoxW(wnd, L"Cannot load test.gif", L"Error", MB_ICONERROR);
+            PostQuitMessage(-1);
+            return 0;
+
+        }
+
+        UINT dimCnt = engine.gif->GetFrameDimensionsCount();
+        GUID* dims = new GUID[dimCnt];
+        engine.gif->GetFrameDimensionsList(dims, dimCnt);
+        engine.dimID = dims[0];
+        delete[] dims;
+
+        engine.frameCount = engine.gif->GetFrameCount(&engine.dimID);
+
+        UINT sz = engine.gif->GetPropertyItemSize(PropertyTagFrameDelay);
+        PropertyItem* pi = static_cast<PropertyItem*>(std::malloc(sz));
+        engine.gif->GetPropertyItem(PropertyTagFrameDelay, sz, pi);
+        UINT n = pi->length / sizeof(UINT);
+        engine.delays = new UINT[n];
+
+        for (UINT i = 0; i < n; i++)
+            engine.delays[i] = (reinterpret_cast<UINT*>(pi->value))[i] * 10; 
+        std::free(pi);
+
+        SetTimer(wnd, engine.timerID, engine.delays[0], nullptr);
+
+        CreateWindowW(L"BUTTON", L"Start Game",
+            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+            1050, 100, 200, 40,
+            wnd, reinterpret_cast<HMENU>(1001), engine.hInst, nullptr);
+
+        CreateWindowW(L"BUTTON", L"Options",
+            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+            1050, 150, 200, 40,
+            wnd, reinterpret_cast<HMENU>(1002), engine.hInst, nullptr);
+
+        CreateWindowW(L"BUTTON", L"Exit",
+            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+            1050, 200, 200, 40,
+            wnd, reinterpret_cast<HMENU>(1003), engine.hInst, nullptr);
+
+        return 0;
+
+    }
+    case WM_TIMER:     
+    {
+
+        engine.currentFrame = (engine.currentFrame + 1) % engine.frameCount;
+        engine.gif->SelectActiveFrame(&engine.dimID, engine.currentFrame);
+        KillTimer(wnd, engine.timerID);
+        SetTimer(wnd, engine.timerID, engine.delays[engine.currentFrame], nullptr);
+        InvalidateRect(wnd, nullptr, FALSE);
+
+        return 0;
+
+    }
+    case WM_PAINT:     
+    {
+
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(wnd, &ps);
+        Graphics g(hdc);
+        g.DrawImage(engine.gif, 0, 0, engine.gif->GetWidth(), engine.gif->GetHeight());
+        EndPaint(wnd, &ps);
+
+        return 0;
+
+    }
+    case WM_COMMAND:  
+    {
+
+        switch (LOWORD(wp))
+        {
+        case 1001: 
+        {
+
+            engine.initChessWindow();
+            ShowWindow(engine.hChessWnd, SW_SHOW);
+            UpdateWindow(engine.hChessWnd);
+            ShowWindow(wnd, SW_HIDE);
+
+            break;
+
+        }
+        case 1002: 
+        {
+
+            MessageBoxW(wnd, L"Options pressed", L"Info", MB_OK);
+            break;
+
+        }
+        case 1003: 
+        {
+
+            PostQuitMessage(0);
+            break;
+
+        }
+        }
+
+        return 0;
+
+    }
+    case WM_DESTROY:   
+    {
+
+        KillTimer(wnd, engine.timerID);
+        return 0;
+
+    }
+
+    }
+
+    return DefWindowProc(wnd, msg, wp, lp);
+
+}
+
+LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM lp)
+{
+
+    GameEngine& engine = GameEngine::instance();
+    constexpr int SZ = 80;                      
+
+    switch (msg)
+    {
+
+    case WM_CREATE:
+    {
+
+        Board::instance().setupInitialPosition();
+        engine.dragging = false;
+        engine.currentTurn = MyColor::WHITE;
+
+        return 0;
+
+    }
+    case WM_PAINT:
+    {
+        
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(wnd, &ps);
+        engine.paintChess(wnd, hdc);
+        EndPaint(wnd, &ps);
+
+        return 0;
+
+    }
+    case WM_LBUTTONDOWN:
+    {
+
+        int x = GET_X_LPARAM(lp), y = GET_Y_LPARAM(lp);
+        int col = x / SZ, row = y / SZ;
+        if (row < 0 || row > 7 || col < 0 || col > 7) return 0;
+
+        Figure* figure = nullptr;
+        try { figure = Board::instance().at({ (int8_t)row,(int8_t)col }); }
+        catch (...) {}
+
+        if (figure && figure->getColor() == engine.currentTurn)
+        {
+
+            engine.drag_piece = engine.vizualizator->figureToPiece(*figure);
+
+            if (engine.drag_piece != Piece::NONE)
+            {
+
+                engine.dragging = true;
+                engine.drag_from_row = row;
+                engine.drag_from_col = col;
+                engine.drag_mouse_x = x;
+                engine.drag_mouse_y = y;
+                SetCapture(wnd);
+                InvalidateRect(wnd, nullptr, FALSE);
+
+            }
+
+        }
+
+        return 0;
+
+    }
+    case WM_MOUSEMOVE:
+    {
+
+        if (engine.dragging)
+        {
+
+            engine.drag_mouse_x = GET_X_LPARAM(lp);
+            engine.drag_mouse_y = GET_Y_LPARAM(lp);
+            InvalidateRect(wnd, nullptr, FALSE);
+
+        }
+
+        return 0;
+
+    }
+    case WM_LBUTTONUP:
+    {
+
+        if (!engine.dragging) return 0;
+
+        int x = GET_X_LPARAM(lp), y = GET_Y_LPARAM(lp);
+        int col = x / SZ, row = y / SZ;
+
+        if (row >= 0 && row < 8 && col >= 0 && col < 8)
+        {
+
+            Position from{ (int8_t)engine.drag_from_row,(int8_t)engine.drag_from_col };
+            Position to{ (int8_t)row,(int8_t)col };
+
+            if (from.row != to.row || from.col != to.col)
+            {
+
+                Figure* figure = Board::instance().at(from);
+
+                if (figure && figure->getColor() == engine.currentTurn)
+                {
+
+                    auto moves = figure->generateMoves(Board::instance(), from);
+                    bool done = false;
+
+                    for (size_t i = 0; i < moves.size() && !done; i++)
+                    {
+
+                        bool promoPawn =
+                            figure->getType() == FigureType::PAWN &&
+                            ((engine.currentTurn == MyColor::WHITE && to.row == 0) ||
+                                (engine.currentTurn == MyColor::BLACK && to.row == 7)) &&
+                            moves[i].to == to;
+
+                        if (promoPawn)
+                        {
+
+                            FigureType pt = engine.askPromotion(wnd);
+
+                            for (size_t j = 0; j < moves.size(); j++)
+                            {
+
+                                if (moves[j].to == to &&
+                                    moves[j].promotionType == pt &&
+                                    Board::instance().isLegalMove(moves[j], engine.currentTurn))
+                                {
+
+                                    Board::instance().applyMove(moves[j]);
+                                    engine.currentTurn = oppositeColor(engine.currentTurn);
+                                    done = true;
+                                    break;
+
+                                }
+
+                            }
+
+                        }
+                        else if (moves[i].to == to &&
+                            Board::instance().isLegalMove(moves[i], engine.currentTurn))
+                        {
+
+                            Board::instance().applyMove(moves[i]);
+                            engine.currentTurn = oppositeColor(engine.currentTurn);
+                            done = true;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        engine.dragging = false;
+        engine.drag_piece = Piece::NONE;
+        ReleaseCapture();
+        InvalidateRect(wnd, nullptr, FALSE);
+
+        return 0;
+
+    }
+    case WM_DESTROY:
+    {
+
+        return 0;
+
+    }
+
+    }
+
+    return DefWindowProc(wnd, msg, wp, lp);
+
+}
+
 
