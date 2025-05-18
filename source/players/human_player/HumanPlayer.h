@@ -1,13 +1,12 @@
 #include "Player.h"
-#include "Move.h"
 #pragma once
 
 class HumanPlayer: public Player
 {
 public:
 
-    explicit HumanPlayer(const MyString& name = "Human");
+    Move getMove(Board& board, MyColor color) override;
 
-    Move requestMove(Board& board, Color side) override;
+    void setPendingMove(const Move& move) override;
 
 };
