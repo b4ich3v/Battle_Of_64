@@ -1,12 +1,15 @@
-#include "Player.h"
-#pragma once
+#include "HumanPlayer.h"
 
-class HumanPlayer: public Player
+Move HumanPlayer::getMove(Board& board, MyColor color)
 {
-public:
 
-    Move getMove(Board& board, MyColor color) override;
+	return pending;
 
-    void setPendingMove(const Move& move) override;
+}
 
-};
+void HumanPlayer::setPendingMove(const Move& move)
+{
+
+	pending = move;
+
+}
