@@ -1,28 +1,23 @@
 #include "Player.h"
-#include "MyPriorityQueue.hpp"
-#include "MyVector.hpp"
 #pragma once
 
-struct Node 
+class AIPlayer: public Player
 {
+private:
+
+    int maxDepth = 0;
+
+    int search(Board& board, int depth, int alpha, int beta, MyColor side);
+
+    int evaluate(const Board& board, MyColor side) const;
+
+    static int value(FigureType type);
+
 public:
 
-    int x = 0;
-    int y = 0;
-    int effort = 0;
+    explicit AIPlayer(int depth = 3);
 
-    Node(int x, int y, int effort);
-
-    bool operator < (const Node& other) const;
+    Move getMove(Board& board, MyColor side) override;
 
 };
 
-class AIPlayer: public Player 
-{
-public:
-
-    explicit AIPlayer(const MyString& name = "AI");
-
-    Move requestMove(Board& board, Color mover) override;
-
-};
