@@ -13,8 +13,8 @@ static void resetBoard()
 {
 
     Board& board = Board::instance();
-    board.clear();                   
-    board.setupInitialPosition();    
+    board.clear();
+    board.setupInitialPosition();
 
 }
 
@@ -48,7 +48,7 @@ int main()
     std::cout << "[1] Knight g1f3" << std::endl;
     resetBoard();
     int before = pieces();
-    Move k1({ 7,6 }, { 5,5 });                    
+    Move k1({ 7,6 }, { 5,5 });
     board.applyMove(k1); board.undoMove(k1);
     std::cout << "  before=" << before << "  after=" << pieces() << std::endl;
     assert(pieces() == before);
@@ -65,10 +65,10 @@ int main()
     resetBoard();
     before = pieces();
 
-    Move e2e4({ 6,4 }, { 4,4 }, SpecialMove::DOUBLE_PAWN);      
-    Move e4e5({ 4,4 }, { 3,4 });                                
-    Move d7d5({ 1,3 }, { 3,3 }, SpecialMove::DOUBLE_PAWN);      
-    Move ep({ 3,4 }, { 2,3 }, SpecialMove::EN_PASSANT);        
+    Move e2e4({ 6,4 }, { 4,4 }, SpecialMove::DOUBLE_PAWN);
+    Move e4e5({ 4,4 }, { 3,4 });
+    Move d7d5({ 1,3 }, { 3,3 }, SpecialMove::DOUBLE_PAWN);
+    Move ep({ 3,4 }, { 2,3 }, SpecialMove::EN_PASSANT);
 
     board.applyMove(e2e4);
     board.applyMove(e4e5);
@@ -83,11 +83,11 @@ int main()
     std::cout << "  before=" << before << "  after=" << pieces() << std::endl;
     assert(pieces() == before);
 
-    std::cout << "[4] Castling O‑O" << std::endl;
+    std::cout << "[4] Castling O-O" << std::endl;
     resetBoard();
     before = pieces();
-    board.applyMove(Move({ 7,5 }, { 5,7 }));      
-    board.applyMove(Move({ 7,6 }, { 5,5 }));      
+    board.applyMove(Move({ 7,5 }, { 5,7 }));
+    board.applyMove(Move({ 7,6 }, { 5,5 }));
     Move castleKS({ 7,4 }, { 7,6 }, SpecialMove::CASTLING_KING_SIDE);
     board.applyMove(castleKS);
     board.undoMove(castleKS);
@@ -97,8 +97,8 @@ int main()
     std::cout << "[5] Promotion a7a8Q" << std::endl;
     resetBoard();
     before = pieces();
-    board.set({ 1,0 }, nullptr);                       
-    board.set({ 1,0 }, new Pawn(Color::WHITE));        
+    board.set({ 1,0 }, nullptr);
+    board.set({ 1,0 }, new Pawn(MyColor::WHITE));
     Move promo({ 1,0 }, { 0,0 }, SpecialMove::PROMOTION, FigureType::QUEEN);
     board.applyMove(promo);
     board.undoMove(promo);
