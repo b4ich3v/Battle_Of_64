@@ -9,7 +9,7 @@ using namespace Gdiplus;
 #define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
 #endif
 
-GameEngine& GameEngine::instance() 
+GameEngine& GameEngine::instance()
 {
 
     static GameEngine inst;
@@ -17,7 +17,9 @@ GameEngine& GameEngine::instance()
 
 }
 
-GameEngine::GameEngine(): gif(nullptr), delays(nullptr)
+GameEngine::GameEngine():
+    gif(nullptr), delays(nullptr),
+    whitePlayer(nullptr), blackPlayer(nullptr), mode(0)
 {
 
     GdiplusStartupInput in{};
@@ -25,28 +27,30 @@ GameEngine::GameEngine(): gif(nullptr), delays(nullptr)
     if (GdiplusStartup(&gdipToken, &in, nullptr) != Ok)
         throw std::runtime_error("Cannot start GDI+");
 
-    vizualizator = new VisitorVisualization(80);   
+    vizualizator = new VisitorVisualization(80);
 
 }
 
 GameEngine::~GameEngine()
 {
 
-    delete vizualizator;          
+    delete whitePlayer;
+    delete blackPlayer;
+    delete vizualizator;
     delete gif;
     delete[] delays;
-    GdiplusShutdown(gdipToken);  
+    GdiplusShutdown(gdipToken);
 
 }
 
 int GameEngine::run(HINSTANCE inst, int nShow)
 {
 
-    hInst = inst;                 
+    hInst = inst;
 
 
-    initGifWindow();              
-    ShowWindow(hMainWnd, nShow);  
+    initGifWindow();
+    ShowWindow(hMainWnd, nShow);
 
     MSG message;
 
@@ -62,7 +66,7 @@ int GameEngine::run(HINSTANCE inst, int nShow)
 
 }
 
-void GameEngine::initGifWindow() 
+void GameEngine::initGifWindow()
 {
 
     WNDCLASS wc{};
@@ -85,7 +89,7 @@ void GameEngine::initGifWindow()
 
 }
 
-void GameEngine::initChessWindow() 
+void GameEngine::initChessWindow()
 {
 
     WNDCLASS wc{};
@@ -102,11 +106,11 @@ void GameEngine::initChessWindow()
 
 }
 
-struct PromoData 
+struct PromoData
 {
 public:
 
-    FigureType result; 
+    FigureType result;
 
 };
 
@@ -155,7 +159,7 @@ FigureType GameEngine::askPromotion(HWND parent)
 
     static bool registered = false;
 
-    if (!registered) 
+    if (!registered)
     {
 
         WNDCLASS wc{}; wc.lpszClassName = L"PromoDlg"; wc.hInstance = hInst; wc.lpfnWndProc = PromoProc; wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
@@ -186,9 +190,9 @@ FigureType GameEngine::askPromotion(HWND parent)
     SetWindowPos(dlg, HWND_TOP, px, py, 340, 120, SWP_SHOWWINDOW);
 
     EnableWindow(parent, FALSE);
-    MSG message; 
+    MSG message;
 
-    while (IsWindow(dlg) && GetMessage(&message, nullptr, 0, 0)) 
+    while (IsWindow(dlg) && GetMessage(&message, nullptr, 0, 0))
     {
 
         if (!IsDialogMessage(dlg, &message)) { TranslateMessage(&message); DispatchMessage(&message); }
@@ -202,7 +206,7 @@ FigureType GameEngine::askPromotion(HWND parent)
 
 }
 
-void GameEngine::paintChess(HWND wnd, HDC hdc) 
+void GameEngine::paintChess(HWND wnd, HDC hdc)
 {
 
     RECT rc; GetClientRect(wnd, &rc);
@@ -220,7 +224,7 @@ void GameEngine::paintChess(HWND wnd, HDC hdc)
     vizualizator->setGraphics(&g);
     Board::instance().accept(*vizualizator);
 
-    if (dragging && drag_piece != Piece::NONE) 
+    if (dragging && drag_piece != Piece::NONE)
     {
 
         Image* img = vizualizator->getImage(drag_piece);
@@ -241,9 +245,9 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
     switch (msg)
     {
 
-    case WM_CREATE:    
+    case WM_CREATE:
     {
-        
+
         engine.gif = Image::FromFile(L"background.gif");
 
         if (!engine.gif || engine.gif->GetLastStatus() != Ok)
@@ -270,7 +274,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
         engine.delays = new UINT[n];
 
         for (UINT i = 0; i < n; i++)
-            engine.delays[i] = (reinterpret_cast<UINT*>(pi->value))[i] * 10; 
+            engine.delays[i] = (reinterpret_cast<UINT*>(pi->value))[i] * 10;
         std::free(pi);
 
         SetTimer(wnd, engine.timerID, engine.delays[0], nullptr);
@@ -293,7 +297,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
         return 0;
 
     }
-    case WM_TIMER:     
+    case WM_TIMER:
     {
 
         engine.currentFrame = (engine.currentFrame + 1) % engine.frameCount;
@@ -305,7 +309,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
         return 0;
 
     }
-    case WM_PAINT:     
+    case WM_PAINT:
     {
 
         PAINTSTRUCT ps;
@@ -317,13 +321,17 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
         return 0;
 
     }
-    case WM_COMMAND:  
+    case WM_COMMAND:
     {
 
         switch (LOWORD(wp))
         {
-        case 1001: 
+        case 1001:
         {
+
+            engine.mode = (MessageBoxW(wnd,
+                L"Start vs Bot (Yes) or 2-Player local (No)?",
+                L"Choose mode", MB_YESNO | MB_ICONQUESTION) == IDYES) ? 1 : 0;
 
             engine.initChessWindow();
             ShowWindow(engine.hChessWnd, SW_SHOW);
@@ -333,14 +341,14 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
             break;
 
         }
-        case 1002: 
+        case 1002:
         {
 
             MessageBoxW(wnd, L"Options pressed", L"Info", MB_OK);
             break;
 
         }
-        case 1003: 
+        case 1003:
         {
 
             PostQuitMessage(0);
@@ -352,7 +360,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
         return 0;
 
     }
-    case WM_DESTROY:   
+    case WM_DESTROY:
     {
 
         KillTimer(wnd, engine.timerID);
@@ -370,7 +378,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 {
 
     GameEngine& engine = GameEngine::instance();
-    constexpr int SZ = 80;                      
+    constexpr int SZ = 80;
 
     switch (msg)
     {
@@ -379,6 +387,15 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
     {
 
         Board::instance().setupInitialPosition();
+
+        delete engine.whitePlayer;
+        delete engine.blackPlayer;
+
+        engine.whitePlayer = new HumanPlayer;
+        engine.blackPlayer = (engine.mode == 0)
+            ? static_cast<Player*>(new HumanPlayer)
+            : static_cast<Player*>(new AIPlayer);
+
         engine.dragging = false;
         engine.currentTurn = MyColor::WHITE;
 
@@ -387,7 +404,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
     }
     case WM_PAINT:
     {
-        
+
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(wnd, &ps);
         engine.paintChess(wnd, hdc);
@@ -493,7 +510,24 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
                                 {
 
                                     Board::instance().applyMove(moves[j]);
+                                    (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer:
+                                        engine.blackPlayer)->setPendingMove(moves[j]);
                                     engine.currentTurn = oppositeColor(engine.currentTurn);
+
+                                    Player* bot = (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer: engine.blackPlayer);
+
+                                    if (dynamic_cast<AIPlayer*>(bot))
+                                    {
+
+                                        Move ai = bot->getMove(Board::instance(), engine.currentTurn);
+
+                                        if (Board::instance().isLegalMove(ai, engine.currentTurn))
+                                            Board::instance().applyMove(ai);
+
+                                        engine.currentTurn = oppositeColor(engine.currentTurn);
+
+                                    }
+
                                     done = true;
                                     break;
 
@@ -502,12 +536,27 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
                             }
 
                         }
-                        else if (moves[i].to == to &&
-                            Board::instance().isLegalMove(moves[i], engine.currentTurn))
+                        else if (moves[i].to == to && Board::instance().isLegalMove(moves[i], engine.currentTurn))
                         {
 
                             Board::instance().applyMove(moves[i]);
+                            (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer :
+                                engine.blackPlayer)->setPendingMove(moves[i]);
                             engine.currentTurn = oppositeColor(engine.currentTurn);
+
+                            Player* bot = (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer: engine.blackPlayer);
+
+                            if (dynamic_cast<AIPlayer*>(bot))
+                            {
+
+                                Move ai = bot->getMove(Board::instance(), engine.currentTurn);
+
+                                if (Board::instance().isLegalMove(ai, engine.currentTurn))
+                                    Board::instance().applyMove(ai);
+
+                                engine.currentTurn = oppositeColor(engine.currentTurn);
+                            }
+
                             done = true;
 
                         }
@@ -540,5 +589,4 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
     return DefWindowProc(wnd, msg, wp, lp);
 
 }
-
 
