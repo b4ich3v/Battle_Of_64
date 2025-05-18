@@ -1,22 +1,19 @@
-#include "Move.h"
 #include "Board.h"
-#include "MyString.h"  
+#include "Move.h"
 #pragma once
 
 class Player
 {
 protected:
 
-    MyString name;
+    Move pending;
 
 public:
-    
-    explicit Player(const MyString& name);
+
+    virtual Move getMove(Board& board, MyColor side) = 0;
+
+    virtual void setPendingMove(const Move& move);
 
     virtual ~Player() = default;
-
-    const MyString& getName() const;
-
-    virtual Move requestMove(Board& board, Color mover) = 0;
 
 };
