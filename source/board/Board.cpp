@@ -13,11 +13,11 @@ HistoryEntry::HistoryEntry(const Move& move, Figure* captured):
     move(move), captured(captured) {}
 
 HistoryEntry::HistoryEntry(const Move & move, Figure* captured,
-    const MyVector<bool>&prevKing, const MyVector<bool>&prevQueen): 
-    move(move), captured(captured), 
+    const MyVector<bool>&prevKing, const MyVector<bool>&prevQueen):
+    move(move), captured(captured),
     castleKingSide(prevKing), castleQueenSide(prevQueen) {}
 
-Board::Board(): table(), history() 
+Board::Board(): table(), history()
 {
 
     for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
@@ -38,7 +38,7 @@ Board::Board(): table(), history()
 
 }
 
-Board::~Board() 
+Board::~Board()
 {
 
     free();
@@ -79,11 +79,11 @@ void Board::set(const Position& position, Figure* figure)
 
 }
 
-void Board::accept(Visitor& visitor) const 
+void Board::accept(Visitor& visitor) const
 {
- 
+
     visitor.visit(*this);
-    
+
     for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
     {
 
@@ -98,10 +98,10 @@ void Board::accept(Visitor& visitor) const
 
 }
 
-void Board::setupInitialPosition() 
+void Board::setupInitialPosition()
 {
-    
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++) 
+
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
     {
 
         for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
@@ -110,9 +110,9 @@ void Board::setupInitialPosition()
             set({ currentRowIndex,currentColIndex }, nullptr);
 
         }
-        
+
     }
-        
+
     history.clear();
     castleKS.clear();
     castleQS.clear();
@@ -122,41 +122,41 @@ void Board::setupInitialPosition()
     castleQS.push_back(true);
     castleQS.push_back(true);
 
-    set({ 7,0 }, new Rook(Color::WHITE));
-    set({ 7,1 }, new Knight(Color::WHITE));
-    set({ 7,2 }, new Bishop(Color::WHITE));
-    set({ 7,3 }, new Queen(Color::WHITE));
-    set({ 7,4 }, new King(Color::WHITE));
-    set({ 7,5 }, new Bishop(Color::WHITE));
-    set({ 7,6 }, new Knight(Color::WHITE));
-    set({ 7,7 }, new Rook(Color::WHITE));
+    set({ 7,0 }, new Rook(MyColor::WHITE));
+    set({ 7,1 }, new Knight(MyColor::WHITE));
+    set({ 7,2 }, new Bishop(MyColor::WHITE));
+    set({ 7,3 }, new Queen(MyColor::WHITE));
+    set({ 7,4 }, new King(MyColor::WHITE));
+    set({ 7,5 }, new Bishop(MyColor::WHITE));
+    set({ 7,6 }, new Knight(MyColor::WHITE));
+    set({ 7,7 }, new Rook(MyColor::WHITE));
 
     for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
     {
 
-        set({ 6,currentColIndex }, new Pawn(Color::WHITE));
+        set({ 6,currentColIndex }, new Pawn(MyColor::WHITE));
 
     }
-        
-    set({ 0,0 }, new Rook(Color::BLACK));
-    set({ 0,1 }, new Knight(Color::BLACK));
-    set({ 0,2 }, new Bishop(Color::BLACK));
-    set({ 0,3 }, new Queen(Color::BLACK));
-    set({ 0,4 }, new King(Color::BLACK));
-    set({ 0,5 }, new Bishop(Color::BLACK));
-    set({ 0,6 }, new Knight(Color::BLACK));
-    set({ 0,7 }, new Rook(Color::BLACK));
 
-    for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++) 
+    set({ 0,0 }, new Rook(MyColor::BLACK));
+    set({ 0,1 }, new Knight(MyColor::BLACK));
+    set({ 0,2 }, new Bishop(MyColor::BLACK));
+    set({ 0,3 }, new Queen(MyColor::BLACK));
+    set({ 0,4 }, new King(MyColor::BLACK));
+    set({ 0,5 }, new Bishop(MyColor::BLACK));
+    set({ 0,6 }, new Knight(MyColor::BLACK));
+    set({ 0,7 }, new Rook(MyColor::BLACK));
+
+    for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
     {
 
-        set({ 1,currentColIndex }, new Pawn(Color::BLACK));
+        set({ 1,currentColIndex }, new Pawn(MyColor::BLACK));
 
     }
 
 }
 
-void Board::free() 
+void Board::free()
 {
 
     for (size_t currentRowIndex = 0; currentRowIndex < table.size(); currentRowIndex++)
@@ -179,7 +179,7 @@ void Board::free()
 
 }
 
-void Board::clear() 
+void Board::clear()
 {
 
     free();
@@ -205,8 +205,8 @@ void Board::clear()
     castleKS.clear();
     castleQS.clear();
 
-    castleKS.push_back(true);  
-    castleKS.push_back(true);  
+    castleKS.push_back(true);
+    castleKS.push_back(true);
     castleQS.push_back(true);
     castleQS.push_back(true);
 
@@ -217,16 +217,16 @@ void Board::applyMove(const Move& move)
 
     Figure* captured = nullptr;
 
-    if (move.getSpecial() == SpecialMove::EN_PASSANT) 
+    if (move.getSpecial() == SpecialMove::EN_PASSANT)
     {
-        
-        Color moverColor = at(move.from)->getColor();
-        int8_t dir = (moverColor == Color::WHITE ? +1 : -1);
+
+        MyColor moverColor = at(move.from)->getColor();
+        int8_t dir = (moverColor == MyColor::WHITE ? +1 : -1);
         Position capPosition{ (int8_t)(move.to.row + dir), move.to.col };
         captured = at(capPosition);
 
     }
-    else 
+    else
     {
 
         captured = at(move.to);
@@ -239,9 +239,9 @@ void Board::applyMove(const Move& move)
 
 }
 
-void Board::undoMove(const Move&) 
+void Board::undoMove(const Move&)
 {
-    
+
     auto entry = popHistory();
     entry.move.undo(*this);
 
@@ -254,14 +254,14 @@ void Board::pushHistory(HistoryEntry entry)
 
 }
 
-bool Board::canCastleKingSide(Color color) const 
+bool Board::canCastleKingSide(MyColor color) const
 {
 
     int index = (int)(color);
     if (!castleKS[index]) return false;
 
-    int row = (color == Color::WHITE ? 7 : 0);
-    
+    int row = (color == MyColor::WHITE ? 7 : 0);
+
     Figure* king = at(Position(row, 4));
     Figure* rook = at(Position(row, 7));
 
@@ -273,14 +273,14 @@ bool Board::canCastleKingSide(Color color) const
 
 }
 
-bool Board::canCastleQueenSide(Color color) const 
+bool Board::canCastleQueenSide(MyColor color) const
 {
 
     int index = (int)(color);
     if (!castleQS[index]) return false;
 
-    int row = (color == Color::WHITE ? 7 : 0);
-    
+    int row = (color == MyColor::WHITE ? 7 : 0);
+
     Figure* king = at(Position(row, 4));
     Figure* rook = at(Position(row, 0));
 
@@ -292,9 +292,9 @@ bool Board::canCastleQueenSide(Color color) const
 
 }
 
-bool Board::isUnderAttack(const Position& position, Color attacker) const 
+bool Board::isUnderAttack(const Position& position, MyColor attacker) const
 {
- 
+
     for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
     {
 
@@ -325,12 +325,12 @@ bool Board::isUnderAttack(const Position& position, Color attacker) const
 
 }
 
-bool Board::isInCheck(Color color) const 
+bool Board::isInCheck(MyColor color) const
 {
-    
+
     Position kingPosition{ -1,-1 };
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; ++currentRowIndex) 
+    for (int currentRowIndex = 0; currentRowIndex < 8; ++currentRowIndex)
     {
 
         for (int currentColIndex = 0; currentColIndex < 8; ++currentColIndex)
@@ -339,8 +339,8 @@ bool Board::isInCheck(Color color) const
             if (Figure* currentFigure = at({ currentRowIndex,currentColIndex }))
             {
 
-                if (currentFigure->getColor() == color && 
-                    currentFigure->symbol() == (color == Color::WHITE ? 'K' : 'k'))
+                if (currentFigure->getColor() == color &&
+                    currentFigure->symbol() == (color == MyColor::WHITE ? 'K' : 'k'))
                 {
 
                     kingPosition = { currentRowIndex,currentColIndex };
@@ -348,33 +348,34 @@ bool Board::isInCheck(Color color) const
                 }
 
             }
-                   
-        }   
+
+        }
 
     }
-        
+
     if (kingPosition.row < 0) throw std::runtime_error("isInCheck: king not found on board");
-        
+
     return isUnderAttack(kingPosition, oppositeColor(color));
 
 }
 
-bool Board::isEnPassantSquare(const Position& cap, Color pawnColor) const
+bool Board::isEnPassantSquare(const Position& cap, MyColor pawnColor) const
 {
 
     if (history.size() == 0) return false;
 
     const HistoryEntry& last = history[history.size() - 1];
-    const Move& move = last.move;          
+    const Move& move = last.move;
 
     if (move.special != SpecialMove::DOUBLE_PAWN) return false;
-       
-    int8_t targetRow = (pawnColor == Color::WHITE ? 3 : 4);
+
+    int8_t targetRow = (pawnColor == MyColor::WHITE ? 3 : 4);
+
     return (cap.row == targetRow && cap.col == move.to.col);
 
 }
 
-MyVector<Move> Board::generateAllLegalMoves(Color side)
+MyVector<Move> Board::generateAllLegalMoves(MyColor side)
 {
 
     MyVector<Move> allMoves;
@@ -407,21 +408,23 @@ MyVector<Move> Board::generateAllLegalMoves(Color side)
 
 }
 
-bool Board::isLegalMove(const Move& move, Color side)
+bool Board::isLegalMove(const Move& move, MyColor side)
 {
 
-    applyMove(move);                 
+    applyMove(move);
     bool isValid = !isInCheck(side);
-    undoMove(move);                 
+    undoMove(move);
+
     return isValid;
 
 }
 
-HistoryEntry Board::peekHistory() const 
+HistoryEntry Board::peekHistory() const
 {
 
     size_t sizeOfHistory = history.size();
     if (sizeOfHistory == 0) throw std::runtime_error("No history available");
+
     return history[sizeOfHistory - 1];
 
 }
