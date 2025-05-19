@@ -109,7 +109,7 @@ void GameEngine::initChessWindow()
 
     hChessWnd = CreateWindowExW(WS_EX_COMPOSITED,
         L"ChessWnd", L"Battlefield", WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 800, 681,
+        CW_USEDEFAULT, CW_USEDEFAULT, 800, 672,
         nullptr, nullptr, hInst, nullptr);
 
     LONG st = GetWindowLong(hChessWnd, GWL_STYLE);
@@ -492,7 +492,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
             wnd, reinterpret_cast<HMENU>(2002), engine.hInst, nullptr);
 
         if (!engine.sideImage)                     
-            engine.sideImage = Image::FromFile(L"right.jpg");
+            engine.sideImage = Image::FromFile(L"right.png");
 
         return 0;
 
