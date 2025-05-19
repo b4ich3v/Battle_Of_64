@@ -463,6 +463,11 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
             657 + 10, 10, 100, 30,
             wnd, reinterpret_cast<HMENU>(2001), engine.hInst, nullptr);
 
+        CreateWindowW(L"BUTTON", L"Lobby",
+            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+            657 + 10, 50, 100, 30,                 
+            wnd, reinterpret_cast<HMENU>(2002), engine.hInst, nullptr);
+
         return 0;
 
     }
@@ -676,6 +681,19 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
                 }
 
             }
+
+            return 0;
+
+        }
+        case 2002:      
+        {
+            
+            Board::instance().setupInitialPosition();   
+
+            DestroyWindow(wnd);                         
+
+            ShowWindow(engine.hMainWnd, SW_SHOW);
+            SetForegroundWindow(engine.hMainWnd);
 
             return 0;
 
