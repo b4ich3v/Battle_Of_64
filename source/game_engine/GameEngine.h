@@ -16,6 +16,7 @@ class GameEngine
 private:
 
     VisitorVisualization* vizualizator = nullptr;
+    bool fromFile = false;
 
     Player* whitePlayer = nullptr;
     Player* blackPlayer = nullptr;
@@ -60,5 +61,9 @@ public:
     static GameEngine& instance();
 
     int run(HINSTANCE hInst, int nShow);
+
+    bool saveGame(Writer& writer);
+
+    bool loadGame(Reader& reader);
 
 };
