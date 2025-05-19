@@ -111,6 +111,12 @@ void GameEngine::initChessWindow()
         CW_USEDEFAULT, CW_USEDEFAULT, 800, 681,
         nullptr, nullptr, hInst, nullptr);
 
+    LONG st = GetWindowLong(hChessWnd, GWL_STYLE);
+    st &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);   
+    SetWindowLong(hChessWnd, GWL_STYLE, st);
+    SetWindowPos(hChessWnd, nullptr, 0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
 }
 
 struct PromoData
