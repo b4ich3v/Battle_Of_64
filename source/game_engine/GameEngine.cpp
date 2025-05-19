@@ -21,7 +21,7 @@ GameEngine& GameEngine::instance()
 
 }
 
-GameEngine::GameEngine() :
+GameEngine::GameEngine():
     gif(nullptr), delays(nullptr),
     whitePlayer(nullptr), blackPlayer(nullptr),
     mode(0), vizualizator(nullptr), fromFile(false)
@@ -43,6 +43,7 @@ GameEngine::~GameEngine()
     delete blackPlayer;
     delete vizualizator;
     delete gif;
+    delete sideImage;
     delete[] delays;
     GdiplusShutdown(gdipToken);
 
@@ -236,6 +237,22 @@ void GameEngine::paintChess(HWND wnd, HDC hdc)
 
     vizualizator->setGraphics(&g);
     Board::instance().accept(*vizualizator);
+
+    const int boardW = 8 * 80;               
+
+    if (sideImage)                             
+    {
+
+        g.DrawImage(sideImage,boardW, 0, w - boardW, h);          
+
+    }
+    else
+    {
+
+        SolidBrush br(Color(255, 30, 30, 30));
+        g.FillRectangle(&br, boardW, 0, w - boardW, h);
+
+    }
 
     if (dragging && drag_piece != Piece::NONE)
     {
@@ -473,6 +490,9 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             657 + 10, 50, 100, 30,                 
             wnd, reinterpret_cast<HMENU>(2002), engine.hInst, nullptr);
+
+        if (!engine.sideImage)                     
+            engine.sideImage = Image::FromFile(L"right.jpg");
 
         return 0;
 
