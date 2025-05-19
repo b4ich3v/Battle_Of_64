@@ -82,7 +82,7 @@ void GameEngine::initGifWindow()
     wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
     RegisterClass(&wc);
 
-    hMainWnd = CreateWindowW(L"GIFWnd", L"GDI+ Animated GIF", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+    hMainWnd = CreateWindowW(L"GIFWnd", L"Lobby", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
         CW_USEDEFAULT, CW_USEDEFAULT, 1280, 740,
         nullptr, nullptr, hInst, nullptr);
 
