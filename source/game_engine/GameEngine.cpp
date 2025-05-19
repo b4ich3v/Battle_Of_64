@@ -1,6 +1,10 @@
 #include "GameEngine.h"
 #include "Figure.h"
+#include "BinaryReader.h"
+#include "BinaryWriter.h"
 #include <cstdlib>
+#include <commdlg.h>
+#pragma comment(lib, "Comdlg32.lib")
 
 using namespace Gdiplus;
 
@@ -17,9 +21,10 @@ GameEngine& GameEngine::instance()
 
 }
 
-GameEngine::GameEngine():
+GameEngine::GameEngine() :
     gif(nullptr), delays(nullptr),
-    whitePlayer(nullptr), blackPlayer(nullptr), mode(0)
+    whitePlayer(nullptr), blackPlayer(nullptr),
+    mode(0), vizualizator(nullptr), fromFile(false)
 {
 
     GdiplusStartupInput in{};
@@ -101,7 +106,7 @@ void GameEngine::initChessWindow()
     RegisterClass(&wc);
 
     hChessWnd = CreateWindowW(L"ChessWnd", L"My Chess Game", WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 657, 681,
+        CW_USEDEFAULT, CW_USEDEFAULT, 800, 681,
         nullptr, nullptr, hInst, nullptr);
 
 }
@@ -294,6 +299,11 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
             1050, 200, 200, 40,
             wnd, reinterpret_cast<HMENU>(1003), engine.hInst, nullptr);
 
+        CreateWindowW(L"BUTTON", L"Load game",
+            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+            1050, 250, 200, 40,
+            wnd, reinterpret_cast<HMENU>(1004), engine.hInst, nullptr);
+
         return 0;
 
     }
@@ -326,6 +336,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
 
         switch (LOWORD(wp))
         {
+
         case 1001:
         {
 
@@ -355,6 +366,43 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
             break;
 
         }
+        case 1004:
+        {
+
+            wchar_t pathW[MAX_PATH]{};
+            OPENFILENAMEW ofn{ sizeof(ofn) };
+            ofn.hwndOwner = wnd;
+            ofn.lpstrFilter = L"Save files\0*.sav\0";
+            ofn.lpstrFile = pathW;
+            ofn.nMaxFile = MAX_PATH;
+
+            if (GetOpenFileNameW(&ofn))
+            {
+
+                char pathA[MAX_PATH];
+                WideCharToMultiByte(CP_UTF8, 0, pathW, -1,
+                    pathA, MAX_PATH, nullptr, nullptr);
+
+                BinaryReader br;
+
+                if (br.open(pathA) && engine.loadGame(br))
+                {
+
+                    br.close();
+                    engine.fromFile = true;
+                    engine.initChessWindow();
+                    ShowWindow(engine.hChessWnd, SW_SHOW);
+                    UpdateWindow(engine.hChessWnd);
+                    ShowWindow(wnd, SW_HIDE);
+
+                }
+
+            }
+
+            break;
+
+        }
+
         }
 
         return 0;
@@ -386,7 +434,9 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
     case WM_CREATE:
     {
 
-        Board::instance().setupInitialPosition();
+        if (!engine.fromFile)
+            Board::instance().setupInitialPosition();
+        engine.fromFile = false;
 
         delete engine.whitePlayer;
         delete engine.blackPlayer;
@@ -398,6 +448,11 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 
         engine.dragging = false;
         engine.currentTurn = MyColor::WHITE;
+
+        CreateWindowW(L"BUTTON", L"Save",
+            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+            657 + 10, 10, 100, 30,
+            wnd, reinterpret_cast<HMENU>(2001), engine.hInst, nullptr);
 
         return 0;
 
@@ -510,11 +565,11 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
                                 {
 
                                     Board::instance().applyMove(moves[j]);
-                                    (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer:
+                                    (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer :
                                         engine.blackPlayer)->setPendingMove(moves[j]);
                                     engine.currentTurn = oppositeColor(engine.currentTurn);
 
-                                    Player* bot = (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer: engine.blackPlayer);
+                                    Player* bot = (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer : engine.blackPlayer);
 
                                     if (dynamic_cast<AIPlayer*>(bot))
                                     {
@@ -544,7 +599,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
                                 engine.blackPlayer)->setPendingMove(moves[i]);
                             engine.currentTurn = oppositeColor(engine.currentTurn);
 
-                            Player* bot = (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer: engine.blackPlayer);
+                            Player* bot = (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer : engine.blackPlayer);
 
                             if (dynamic_cast<AIPlayer*>(bot))
                             {
@@ -577,6 +632,51 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
         return 0;
 
     }
+    case WM_COMMAND:
+    {
+
+        switch (LOWORD(wp))
+        {
+
+        case 2001:
+        {
+
+            wchar_t pathW[MAX_PATH]{};
+            OPENFILENAMEW ofn{ sizeof(ofn) };
+            ofn.hwndOwner = wnd;
+            ofn.lpstrFilter = L"Save files\0*.sav\0";
+            ofn.lpstrFile = pathW;
+            ofn.nMaxFile = MAX_PATH;
+            ofn.Flags = OFN_OVERWRITEPROMPT;
+
+            if (GetSaveFileNameW(&ofn))
+            {
+
+                char pathA[MAX_PATH];
+                WideCharToMultiByte(CP_UTF8, 0, pathW, -1,
+                    pathA, MAX_PATH, nullptr, nullptr);
+
+                BinaryWriter bw;
+
+                if (bw.open(pathA))
+                {
+
+                    engine.saveGame(bw);
+                    bw.close();
+
+                }
+
+            }
+
+            return 0;
+
+        }
+
+        }
+
+        break;
+
+    }
     case WM_DESTROY:
     {
 
@@ -587,6 +687,49 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
     }
 
     return DefWindowProc(wnd, msg, wp, lp);
+
+}
+
+bool GameEngine::saveGame(Writer& writer)
+{
+
+    const char magic[4] = { 'D', 'S', 'Q', '1' };
+    if (!writer.write(magic, 4)) return false;
+
+    int32_t m = mode;
+    if (!writer.write(&m, sizeof(m))) return false;
+
+    int8_t t = static_cast<int8_t>(currentTurn);
+    if (!writer.write(&t, sizeof(t))) return false;
+
+    Board::instance().serialize(writer);
+    return true;
+
+}
+
+bool GameEngine::loadGame(Reader& reader)
+{
+
+    char magic[4];
+
+    if (!reader.read(magic, 4) || strncmp(magic, "DSQ1", 4) != 0) return false;
+    if (!reader.read(&mode, sizeof(mode))) return false;
+
+    int8_t t;
+    if (!reader.read(&t, sizeof(t))) return false;
+    currentTurn = static_cast<MyColor>(t);
+
+    Board::instance().deserialize(reader);
+
+    delete whitePlayer;
+    delete blackPlayer;
+
+    whitePlayer = new HumanPlayer;
+    blackPlayer = (mode == 0)
+        ? static_cast<Player*>(new HumanPlayer)
+        : static_cast<Player*>(new AIPlayer);
+
+    return true;
 
 }
 
