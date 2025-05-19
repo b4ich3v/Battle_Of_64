@@ -1,6 +1,9 @@
 #include "Position.h"
 #include "Figure.h"
 #include "Move.h"
+#include "Writer.h"
+#include "Reader.h"
+#include "VisitorVisualization.h"
 #pragma once
 
 struct HistoryEntry
@@ -18,7 +21,7 @@ public:
     HistoryEntry(const Move& move, Figure* captured);
 
     HistoryEntry(const Move& move, Figure* captured,
-        const MyVector<bool>&prevKing, const MyVector<bool>&prevQueen);
+        const MyVector<bool>& prevKing, const MyVector<bool>& prevQueen);
 
 };
 
@@ -81,5 +84,13 @@ public:
     HistoryEntry peekHistory() const;
 
     HistoryEntry popHistory();
+
+    void serialize (Writer& writer) const;
+
+    void deserialize(Reader& reader);
+
+    static Piece figureToPiece(const Figure* figure);
+
+    static Figure* createFigureFromPiece(Piece piece);
 
 };
