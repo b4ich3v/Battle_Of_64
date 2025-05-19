@@ -17,6 +17,7 @@ private:
 
     VisitorVisualization* vizualizator = nullptr;
     bool fromFile = false;
+    Gdiplus::Image* sideImage = nullptr;
 
     Player* whitePlayer = nullptr;
     Player* blackPlayer = nullptr;
