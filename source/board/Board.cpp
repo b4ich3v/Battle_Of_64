@@ -6,18 +6,18 @@
 #include "Pawn.h"
 #include "Board.h"
 
-HistoryEntry::HistoryEntry():
+HistoryEntry::HistoryEntry() :
     move(Position{ 0,0 }, Position{ 0,0 }), captured(nullptr) {}
 
-HistoryEntry::HistoryEntry(const Move& move, Figure* captured):
+HistoryEntry::HistoryEntry(const Move& move, Figure* captured) :
     move(move), captured(captured) {}
 
-HistoryEntry::HistoryEntry(const Move & move, Figure* captured,
-    const MyVector<bool>&prevKing, const MyVector<bool>&prevQueen):
+HistoryEntry::HistoryEntry(const Move& move, Figure* captured,
+    const MyVector<bool>& prevKing, const MyVector<bool>& prevQueen) :
     move(move), captured(captured),
     castleKingSide(prevKing), castleQueenSide(prevQueen) {}
 
-Board::Board(): table(), history()
+Board::Board() : table(), history()
 {
 
     for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
@@ -441,3 +441,86 @@ HistoryEntry Board::popHistory()
     return entry;
 
 }
+
+void Board::serialize(Writer& writer) const
+{
+
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    {
+
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        {
+
+            Piece piece = figureToPiece(at({ (int8_t)currentRowIndex,(int8_t)currentColIndex }));
+            writer.write(&piece, 1);
+
+        }
+
+    }
+
+}
+
+void Board::deserialize(Reader& reader)
+{
+
+    clear();
+
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    {
+
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        {
+
+            Piece piece; reader.read(&piece, 1);
+            if (piece == Piece::NONE) continue;
+
+            Figure* currentFigure = createFigureFromPiece(piece);
+            set(Position{ (int8_t)(currentRowIndex), (int8_t)(currentColIndex) }, currentFigure);
+
+        }
+
+    }
+
+}
+
+Piece Board::figureToPiece(const Figure* figure)
+{
+
+    if (!figure) return Piece::NONE;
+
+    switch (figure->getType()) 
+    {
+
+    case FigureType::PAWN: return (figure->getColor() == MyColor::WHITE) ? Piece::WP : Piece::BP;
+    case FigureType::KNIGHT: return (figure->getColor() == MyColor::WHITE) ? Piece::WN : Piece::BN;
+    case FigureType::BISHOP: return (figure->getColor() == MyColor::WHITE) ? Piece::WB : Piece::BB;
+    case FigureType::ROOK: return (figure->getColor() == MyColor::WHITE) ? Piece::WR : Piece::BR;
+    case FigureType::QUEEN: return (figure->getColor() == MyColor::WHITE) ? Piece::WQ : Piece::BQ;
+    case FigureType::KING: return (figure->getColor() == MyColor::WHITE) ? Piece::WK : Piece::BK;
+    default: return Piece::NONE;
+
+    }
+
+}
+
+Figure* Board::createFigureFromPiece(Piece piece)
+{
+
+    MyColor color = (piece <= Piece::WK) ? MyColor::WHITE : MyColor::BLACK;
+
+    switch (piece) 
+    {
+
+    case Piece::WP: case Piece::BP: return new Pawn(color);
+    case Piece::WN: case Piece::BN: return new Knight(color);
+    case Piece::WB: case Piece::BB: return new Bishop(color);
+    case Piece::WR: case Piece::BR: return new Rook(color);
+    case Piece::WQ: case Piece::BQ: return new Queen(color);
+    case Piece::WK: case Piece::BK: return new King(color);
+    default: return nullptr;
+
+    }
+
+}
+
+
