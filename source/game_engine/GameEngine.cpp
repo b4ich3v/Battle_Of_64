@@ -3,8 +3,8 @@
 #include "BinaryReader.h"
 #include "BinaryWriter.h"
 #include <cstdlib>
-#include <commdlg.h>
-#pragma comment(lib, "Comdlg32.lib")
+#include <commdlg.h>                 
+#pragma comment(lib, "Comdlg32.lib") 
 
 using namespace Gdiplus;
 
@@ -103,9 +103,11 @@ void GameEngine::initChessWindow()
     wc.hInstance = hInst;
     wc.lpfnWndProc = ChessWndProc;
     wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+    wc.style = CS_HREDRAW | CS_VREDRAW;
     RegisterClass(&wc);
 
-    hChessWnd = CreateWindowW(L"ChessWnd", L"My Chess Game", WS_OVERLAPPEDWINDOW,
+    hChessWnd = CreateWindowExW(WS_EX_COMPOSITED,
+        L"ChessWnd", L"Battlefield", WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 800, 681,
         nullptr, nullptr, hInst, nullptr);
 
@@ -284,25 +286,26 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
 
         SetTimer(wnd, engine.timerID, engine.delays[0], nullptr);
 
-        CreateWindowW(L"BUTTON", L"Start Game",
+        CreateWindowW(L"BUTTON", L"Start new game",          
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             1050, 100, 200, 40,
             wnd, reinterpret_cast<HMENU>(1001), engine.hInst, nullptr);
 
-        CreateWindowW(L"BUTTON", L"Options",
+        CreateWindowW(L"BUTTON", L"Load game",               
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             1050, 150, 200, 40,
-            wnd, reinterpret_cast<HMENU>(1002), engine.hInst, nullptr);
+            wnd, reinterpret_cast<HMENU>(1004), engine.hInst, nullptr);
 
-        CreateWindowW(L"BUTTON", L"Exit",
+        CreateWindowW(L"BUTTON", L"Options",                 
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             1050, 200, 200, 40,
-            wnd, reinterpret_cast<HMENU>(1003), engine.hInst, nullptr);
+            wnd, reinterpret_cast<HMENU>(1002), engine.hInst, nullptr);
 
-        CreateWindowW(L"BUTTON", L"Load game",
+        CreateWindowW(L"BUTTON", L"Exit",                    
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             1050, 250, 200, 40,
-            wnd, reinterpret_cast<HMENU>(1004), engine.hInst, nullptr);
+            wnd, reinterpret_cast<HMENU>(1003), engine.hInst, nullptr);
+
 
         return 0;
 
@@ -317,6 +320,12 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
         InvalidateRect(wnd, nullptr, FALSE);
 
         return 0;
+
+    }
+    case WM_ERASEBKGND:
+    {
+
+        return 1;
 
     }
     case WM_PAINT:
@@ -366,7 +375,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
             break;
 
         }
-        case 1004:
+        case 1004:           
         {
 
             wchar_t pathW[MAX_PATH]{};
@@ -434,7 +443,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
     case WM_CREATE:
     {
 
-        if (!engine.fromFile)
+        if (!engine.fromFile)                 
             Board::instance().setupInitialPosition();
         engine.fromFile = false;
 
@@ -638,7 +647,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
         switch (LOWORD(wp))
         {
 
-        case 2001:
+        case 2001:               
         {
 
             wchar_t pathW[MAX_PATH]{};
@@ -674,7 +683,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 
         }
 
-        break;
+        break;     
 
     }
     case WM_DESTROY:
@@ -693,16 +702,16 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 bool GameEngine::saveGame(Writer& writer)
 {
 
-    const char magic[4] = { 'D', 'S', 'Q', '1' };
+    const char magic[4] = { 'D', 'S', 'Q', '1' };          
     if (!writer.write(magic, 4)) return false;
 
-    int32_t m = mode;
+    int32_t m = mode;                                      
     if (!writer.write(&m, sizeof(m))) return false;
 
-    int8_t t = static_cast<int8_t>(currentTurn);
+    int8_t t = static_cast<int8_t>(currentTurn);           
     if (!writer.write(&t, sizeof(t))) return false;
 
-    Board::instance().serialize(writer);
+    Board::instance().serialize(writer);                        
     return true;
 
 }
@@ -719,7 +728,7 @@ bool GameEngine::loadGame(Reader& reader)
     if (!reader.read(&t, sizeof(t))) return false;
     currentTurn = static_cast<MyColor>(t);
 
-    Board::instance().deserialize(reader);
+    Board::instance().deserialize(reader);                      
 
     delete whitePlayer;
     delete blackPlayer;
