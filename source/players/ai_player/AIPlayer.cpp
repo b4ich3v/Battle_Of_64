@@ -1,6 +1,10 @@
 #include "AIPlayer.h"
 
-AIPlayer::AIPlayer(int depth): maxDepth(depth) {}
+Move AIPlayer::lastWhite; 
+
+Move AIPlayer::lastBlack;
+
+AIPlayer::AIPlayer(int depth) : maxDepth(depth) {}
 
 int AIPlayer::value(FigureType type)
 {
@@ -104,6 +108,8 @@ Move AIPlayer::getMove(Board& board, MyColor side)
     Move bestMove;
     int  bestScore = -100000, alpha = -100000, beta = 100000;
 
+    const Move& last = (side == MyColor::WHITE ? lastWhite : lastBlack);
+
     for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
     {
 
@@ -111,44 +117,50 @@ Move AIPlayer::getMove(Board& board, MyColor side)
         {
 
             Figure* currentFigure = nullptr;
+
             try { currentFigure = board.at({ (int8_t)currentRowIndex,(int8_t)currentColIndex }); }
             catch (...) {}
 
             if (!currentFigure || currentFigure->getColor() != side) continue;
-
             auto moves = currentFigure->generateMoves(board, { (int8_t)currentRowIndex,(int8_t)currentColIndex });
 
             for (size_t i = 0; i < moves.size(); i++)
             {
 
-                if (board.isLegalMove(moves[i], side))
+                const Move& currentMove = moves[i];
+
+                if (currentMove.from == last.from && currentMove.to == last.to &&
+                    currentMove.promotionType == last.promotionType)
+                    continue;
+
+                if (!board.isLegalMove(currentMove, side)) continue;
+
+                board.applyMove(currentMove);
+                int score = -search(board, maxDepth - 1, -beta, -alpha, oppositeColor(side));
+                board.undoMove(currentMove);
+
+                if (score > bestScore) 
                 {
 
-                    board.applyMove(moves[i]);
-
-                    int score = -search(board, maxDepth - 1, -beta, -alpha, oppositeColor(side));
-                    board.undoMove(moves[i]);
-
-                    if (score > bestScore)
-                    {
-
-                        bestScore = score;
-                        bestMove = moves[i];
-
-                    }
-
-                    if (score > alpha) alpha = score;
+                    bestScore = score;
+                    bestMove = currentMove;
 
                 }
+
+                if (score > alpha) alpha = score;
 
             }
 
         }
 
     }
+        
+    if (side == MyColor::WHITE) lastWhite = bestMove;
+    else lastBlack = bestMove;
 
     return bestMove;
 
 }
+
 
 
