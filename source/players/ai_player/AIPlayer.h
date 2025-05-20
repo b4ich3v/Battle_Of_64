@@ -6,6 +6,8 @@ class AIPlayer: public Player
 private:
 
     int maxDepth = 0;
+    static Move lastWhite;
+    static Move lastBlack;
 
     int search(Board& board, int depth, int alpha, int beta, MyColor side);
 
