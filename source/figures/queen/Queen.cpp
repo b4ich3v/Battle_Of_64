@@ -1,27 +1,6 @@
 #include "Queen.h"
 
-static MyVector<MyPair<int, int>> makeQueenDirs()
-{
-
-    MyVector<MyPair<int, int>> dirs;
-   
-    dirs.push_back(MyPair<int, int>(-1, 0));
-    dirs.push_back(MyPair<int, int>(1, 0));
-    dirs.push_back(MyPair<int, int>(0, -1));
-    dirs.push_back(MyPair<int, int>(0, 1));
-    
-    dirs.push_back(MyPair<int, int>(-1, -1));
-    dirs.push_back(MyPair<int, int>(-1, 1));
-    dirs.push_back(MyPair<int, int>(1, -1));
-    dirs.push_back(MyPair<int, int>(1, 1));
-
-    return dirs;
-
-}
-
-static const MyVector<MyPair<int, int>> QUEEN_DIRS = makeQueenDirs();
-
-Queen::Queen(Color color): 
+Queen::Queen(MyColor color): 
     SlidingFigure(color, FigureType::QUEEN) {}
 
 MyVector<Move> Queen::generateMoves(const Board& board,
@@ -42,6 +21,6 @@ void Queen::accept(Visitor& visitor) const
 char Queen::symbol() const
 {
 
-    return (getColor() == Color::WHITE ? 'Q' : 'q');
+    return (getColor() == MyColor::WHITE ? 'Q' : 'q');
 
 }
