@@ -159,6 +159,23 @@ static MyVector<MyPair<int, int>> makeKnightDirs()
 
 }
 
+static MyVector<MyPair<int, int>> makeQueenDirs()
+{
+
+    MyVector<MyPair<int, int>> dirs = makeOrthogonalDirs();
+    MyVector<MyPair<int, int>> iter = makeDiagonalDirs();
+
+    for (size_t i = 0; i < iter.size(); i++)
+    {
+
+        dirs.push_back(iter[i]);
+
+    }
+
+    return dirs;
+
+}
+
 static const MyVector<MyPair<int, int>> DIAGONAL_DIRS = makeDiagonalDirs();
 
 static const MyVector<MyPair<int, int>> ORTHOGONAL_DIRS = makeOrthogonalDirs();
@@ -166,3 +183,5 @@ static const MyVector<MyPair<int, int>> ORTHOGONAL_DIRS = makeOrthogonalDirs();
 static const MyVector<MyPair<int, int>> KING_DIRS = makeKingDirs();
 
 static const MyVector<MyPair<int, int>> KNIGHT_DIRS = makeKnightDirs();
+
+static const MyVector<MyPair<int, int>> QUEEN_DIRS = makeQueenDirs();
