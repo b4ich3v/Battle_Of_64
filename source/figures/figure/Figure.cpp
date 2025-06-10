@@ -1,30 +1,30 @@
 #include "Figure.h"
 
-Figure::Figure(Color color, FigureType type): 
+Figure::Figure(MyColor color, FigureType type):
 	color(color), type(type) {}
 
-Color Figure::getColor() const 
+MyColor Figure::getColor() const
 {
 
-	return color; 
+	return color;
 
 }
 
-FigureType Figure::getType() const 
-{ 
+FigureType Figure::getType() const
+{
 
-	return type; 
+	return type;
 
 }
 
-Position Figure::getPosition() const 
+Position Figure::getPosition() const
 {
 
 	return position;
 
 }
 
-void Figure::setPosition(const Position& position) 
+void Figure::setPosition(const Position& position)
 {
 
 	this->position = position;
