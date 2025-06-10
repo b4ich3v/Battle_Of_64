@@ -2,53 +2,33 @@
 #include "Visitor.h"
 #include "MyVector.hpp"
 #include "MyPair.hpp"
+#include "Types.h"
 #pragma once
+
+class Board;
 
 class Move;
 
-enum class Color: uint8_t
+inline MyColor oppositeColor(MyColor color)
 {
 
-    WHITE,
-    BLACK
-
-};
-
-inline Color oppositeColor(Color color)
-{
-
-    return color == Color::WHITE ? Color::BLACK : Color::WHITE;
+    return color == MyColor::WHITE ? MyColor::BLACK : MyColor::WHITE;
 
 }
-
-enum class FigureType: uint8_t
-{
-
-    NONE,
-    PAWN,
-    KNIGHT,
-    BISHOP,
-    ROOK,
-    QUEEN,
-    KING
-
-};
-
-class Board;
 
 class Figure
 {
 protected:
 
-    Color color;
+    MyColor color;
     FigureType type;
     Position position;
 
 public:
 
-    Figure(Color color, FigureType type);
+    Figure(MyColor color, FigureType type);
 
-    Color getColor() const;
+    MyColor getColor() const;
 
     FigureType getType() const;
 
