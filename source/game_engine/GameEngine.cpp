@@ -21,7 +21,7 @@ GameEngine& GameEngine::instance()
 
 }
 
-GameEngine::GameEngine():
+GameEngine::GameEngine() :
     gif(nullptr), delays(nullptr),
     whitePlayer(nullptr), blackPlayer(nullptr),
     mode(0), vizualizator(nullptr), fromFile(false)
@@ -113,7 +113,7 @@ void GameEngine::initChessWindow()
         nullptr, nullptr, hInst, nullptr);
 
     LONG st = GetWindowLong(hChessWnd, GWL_STYLE);
-    st &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);   
+    st &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
     SetWindowLong(hChessWnd, GWL_STYLE, st);
     SetWindowPos(hChessWnd, nullptr, 0, 0, 0, 0,
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
@@ -238,12 +238,12 @@ void GameEngine::paintChess(HWND wnd, HDC hdc)
     vizualizator->setGraphics(&g);
     Board::instance().accept(*vizualizator);
 
-    const int boardW = 8 * 80;               
+    const int boardW = 8 * 80;
 
-    if (sideImage)                             
+    if (sideImage)
     {
 
-        g.DrawImage(sideImage,boardW, 0, w - boardW, h);          
+        g.DrawImage(sideImage, boardW, 0, w - boardW, h);
 
     }
     else
@@ -309,22 +309,22 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
 
         SetTimer(wnd, engine.timerID, engine.delays[0], nullptr);
 
-        CreateWindowW(L"BUTTON", L"Start new game",          
+        CreateWindowW(L"BUTTON", L"Start new game",
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             1050, 100, 200, 40,
             wnd, reinterpret_cast<HMENU>(1001), engine.hInst, nullptr);
 
-        CreateWindowW(L"BUTTON", L"Load game",               
+        CreateWindowW(L"BUTTON", L"Load game",
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             1050, 150, 200, 40,
             wnd, reinterpret_cast<HMENU>(1004), engine.hInst, nullptr);
 
-        CreateWindowW(L"BUTTON", L"Options",                 
+        CreateWindowW(L"BUTTON", L"Options",
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             1050, 200, 200, 40,
             wnd, reinterpret_cast<HMENU>(1002), engine.hInst, nullptr);
 
-        CreateWindowW(L"BUTTON", L"Exit",                    
+        CreateWindowW(L"BUTTON", L"Exit",
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             1050, 250, 200, 40,
             wnd, reinterpret_cast<HMENU>(1003), engine.hInst, nullptr);
@@ -398,7 +398,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
             break;
 
         }
-        case 1004:           
+        case 1004:
         {
 
             wchar_t pathW[MAX_PATH]{};
@@ -460,13 +460,53 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
     GameEngine& engine = GameEngine::instance();
     constexpr int SZ = 80;
 
+    auto showResult = [&](const wchar_t* text)
+    {
+
+        MessageBoxW(wnd, text, L"Game Over", MB_OK | MB_ICONINFORMATION);
+        engine.dragging = false;
+        engine.drag_piece = Piece::NONE;
+        ReleaseCapture();
+        InvalidateRect(wnd, nullptr, FALSE);
+
+    };
+
+    auto checkGameEnd = [&]() -> bool
+    {
+        Board& bd = Board::instance();
+        MyColor side = engine.currentTurn;
+
+        if (!bd.hasLegalMoves(side)) 
+        {
+           
+            if (bd.isInCheck(side))
+            {
+
+                showResult( side == MyColor::WHITE? L"Checkmate! Black wins.": L"Checkmate! White wins.");
+
+            }
+            else 
+            {
+
+                showResult(L"Stalemate – draw.");
+
+            }
+
+            return true;
+
+        }
+
+        return false;
+
+    };
+
     switch (msg)
     {
 
     case WM_CREATE:
     {
 
-        if (!engine.fromFile)                 
+        if (!engine.fromFile)
             Board::instance().setupInitialPosition();
         engine.fromFile = false;
 
@@ -488,10 +528,10 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 
         CreateWindowW(L"BUTTON", L"Lobby",
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-            657 + 10, 50, 100, 30,                 
+            657 + 10, 50, 100, 30,
             wnd, reinterpret_cast<HMENU>(2002), engine.hInst, nullptr);
 
-        if (!engine.sideImage)                     
+        if (!engine.sideImage)
             engine.sideImage = Image::FromFile(L"right.png");
 
         return 0;
@@ -609,6 +649,8 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
                                         engine.blackPlayer)->setPendingMove(moves[j]);
                                     engine.currentTurn = oppositeColor(engine.currentTurn);
 
+                                    if (checkGameEnd()) return 0;
+
                                     Player* bot = (engine.currentTurn == MyColor::WHITE ? engine.whitePlayer : engine.blackPlayer);
 
                                     if (dynamic_cast<AIPlayer*>(bot))
@@ -620,6 +662,8 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
                                             Board::instance().applyMove(ai);
 
                                         engine.currentTurn = oppositeColor(engine.currentTurn);
+
+                                        if (checkGameEnd()) return 0;
 
                                     }
 
@@ -650,6 +694,9 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
                                     Board::instance().applyMove(ai);
 
                                 engine.currentTurn = oppositeColor(engine.currentTurn);
+
+                                if (checkGameEnd()) return 0;
+
                             }
 
                             done = true;
@@ -678,7 +725,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
         switch (LOWORD(wp))
         {
 
-        case 2001:               
+        case 2001:
         {
 
             wchar_t pathW[MAX_PATH]{};
@@ -711,12 +758,12 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
             return 0;
 
         }
-        case 2002:      
+        case 2002:
         {
-            
-            Board::instance().setupInitialPosition();   
 
-            DestroyWindow(wnd);                         
+            Board::instance().setupInitialPosition();
+
+            DestroyWindow(wnd);
 
             ShowWindow(engine.hMainWnd, SW_SHOW);
             SetForegroundWindow(engine.hMainWnd);
@@ -727,7 +774,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 
         }
 
-        break;     
+        break;
 
     }
     case WM_DESTROY:
@@ -746,16 +793,16 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 bool GameEngine::saveGame(Writer& writer)
 {
 
-    const char magic[4] = { 'D', 'S', 'Q', '1' };          
+    const char magic[4] = { 'D', 'S', 'Q', '1' };
     if (!writer.write(magic, 4)) return false;
 
-    int32_t m = mode;                                      
+    int32_t m = mode;
     if (!writer.write(&m, sizeof(m))) return false;
 
-    int8_t t = static_cast<int8_t>(currentTurn);           
+    int8_t t = static_cast<int8_t>(currentTurn);
     if (!writer.write(&t, sizeof(t))) return false;
 
-    Board::instance().serialize(writer);                        
+    Board::instance().serialize(writer);
     return true;
 
 }
@@ -772,7 +819,7 @@ bool GameEngine::loadGame(Reader& reader)
     if (!reader.read(&t, sizeof(t))) return false;
     currentTurn = static_cast<MyColor>(t);
 
-    Board::instance().deserialize(reader);                      
+    Board::instance().deserialize(reader);
 
     delete whitePlayer;
     delete blackPlayer;
@@ -785,4 +832,3 @@ bool GameEngine::loadGame(Reader& reader)
     return true;
 
 }
-
