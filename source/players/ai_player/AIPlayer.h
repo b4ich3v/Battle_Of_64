@@ -17,7 +17,7 @@ private:
 
 public:
 
-    explicit AIPlayer(int depth = 3);
+    explicit AIPlayer(int depth = DEFAULT_DEPTH);
 
     Move getMove(Board& board, MyColor side) override;
 
