@@ -5,7 +5,7 @@ class Pawn: public Figure
 {
 public:
 
-    explicit Pawn(Color color);
+    explicit Pawn(MyColor color);
 
     MyVector<Move> generateMoves(Board const& board, Position const& from) const override;
 
@@ -14,5 +14,3 @@ public:
     char symbol() const override;
 
 };
-
-
