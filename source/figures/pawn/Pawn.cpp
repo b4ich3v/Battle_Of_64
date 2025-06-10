@@ -1,7 +1,7 @@
 #include "Pawn.h"
 #include "Board.h"
 
-Pawn::Pawn(Color color): 
+Pawn::Pawn(MyColor color): 
     Figure(color, FigureType::PAWN) {}
 
 MyVector<Move> Pawn::generateMoves(const Board& board,
@@ -9,24 +9,24 @@ MyVector<Move> Pawn::generateMoves(const Board& board,
 {
 
     MyVector<Move> move;
-    int8_t dir = (getColor() == Color::WHITE ? -1 : 1);
+    int8_t dir = (getColor() == MyColor::WHITE ? EP_DIR_WHITE : EP_DIR_BLACK);
     Position one{ (int8_t)(from.row + dir), from.col };
 
     if (board.isValid(one) && board.at(one) == nullptr) 
     {
 
-        bool promo = (one.row == 0 || one.row == 7);
+        bool promo = (one.row == WHITE_PROMOTE_ROW || one.row == BLACK_PROMOTE_ROW);
 
         move.push_back(Move(from, one, promo ? SpecialMove::PROMOTION:
             SpecialMove::NORMAL, promo ? FigureType::QUEEN: FigureType::NONE));
 
-        bool onHome = (getColor() == Color::WHITE && from.row == 6) ||
-            (getColor() == Color::BLACK && from.row == 1);
+        bool onHome = (getColor() == MyColor::WHITE && from.row == WHITE_PAWN_ROW) ||
+            (getColor() == MyColor::BLACK && from.row == BLACK_PAWN_ROW);
 
         if (onHome) 
         {
 
-            Position two{ static_cast<int8_t>(from.row + 2 * dir), from.col };
+            Position two{ (int8_t)(from.row + 2 * dir), from.col };
 
             if (board.at(two) == nullptr)
                 move.push_back(Move(from, two, SpecialMove::DOUBLE_PAWN));
@@ -44,7 +44,7 @@ MyVector<Move> Pawn::generateMoves(const Board& board,
         if (!board.isValid(capPosition)) continue;
 
         const Figure* target = board.at(capPosition);
-        bool promo = (capPosition.row == 0 || capPosition.row == 7);
+        bool promo = (capPosition.row == WHITE_PROMOTE_ROW || capPosition.row == BLACK_PROMOTE_ROW);
 
         if (target && target->getColor() != getColor())
         {
@@ -77,6 +77,6 @@ void Pawn::accept(Visitor& visitor) const
 char Pawn::symbol() const
 {
 
-    return (getColor() == Color::WHITE ? 'P' : 'p');
+    return (getColor() == MyColor::WHITE ? 'P' : 'p');
 
 }
