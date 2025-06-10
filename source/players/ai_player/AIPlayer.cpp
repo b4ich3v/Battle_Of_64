@@ -4,34 +4,35 @@ Move AIPlayer::lastWhite;
 
 Move AIPlayer::lastBlack;
 
-AIPlayer::AIPlayer(int depth) : maxDepth(depth) {}
+AIPlayer::AIPlayer(int depth): maxDepth(depth) {}
 
 int AIPlayer::value(FigureType type)
 {
 
-    switch (type)
+    switch (type) 
     {
 
-    case FigureType::PAWN: return 100;
-    case FigureType::KNIGHT: return 320;
-    case FigureType::BISHOP: return 330;
-    case FigureType::ROOK: return 500;
-    case FigureType::QUEEN: return 900;
+    case FigureType::PAWN: return VALUE_PAWN;
+    case FigureType::KNIGHT: return VALUE_KNIGHT;
+    case FigureType::BISHOP: return VALUE_BISHOP;
+    case FigureType::ROOK: return VALUE_ROOK;
+    case FigureType::QUEEN: return VALUE_QUEEN;
     default: return 0;
 
     }
 
 }
 
+
 int AIPlayer::evaluate(const Board& board, MyColor side) const
 {
 
     int score = 0;
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (int currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (int currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             Figure* currentFigure = nullptr;
@@ -57,12 +58,12 @@ int AIPlayer::search(Board& board, int depth, int alpha, int beta, MyColor side)
     if (depth == 0) return evaluate(board, side);
 
     bool anyMove = false;
-    int best = -100000;
+    int best = MIN_SCORE;
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             Figure* currentFigure = nullptr;
@@ -106,14 +107,16 @@ Move AIPlayer::getMove(Board& board, MyColor side)
 {
 
     Move bestMove;
-    int  bestScore = -100000, alpha = -100000, beta = 100000;
+    int bestScore = MIN_SCORE;
+    int alpha = MIN_SCORE;
+    int beta = BETA_INIT;
 
     const Move& last = (side == MyColor::WHITE ? lastWhite : lastBlack);
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             Figure* currentFigure = nullptr;
