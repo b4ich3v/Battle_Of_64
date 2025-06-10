@@ -97,6 +97,15 @@ enum class SpecialMove: uint8_t
 
 };
 
+enum class Piece: uint8_t
+{
+
+    NONE,
+    WP, WN, WB, WR, WQ, WK,
+    BP, BN, BB, BR, BQ, BK
+
+};
+
 static MyVector<MyPair<int, int>> makeDiagonalDirs()
 {
 
