@@ -8,13 +8,13 @@
 #include "Queen.h"
 
 Move::Move(): from{ 0,0 }, to{ 0,0 },
-    special(SpecialMove::NORMAL), promotionType(FigureType::QUEEN) {}
+special(SpecialMove::NORMAL), promotionType(FigureType::QUEEN) {}
 
 Move::Move(Position f, Position t,
-    SpecialMove s,FigureType p): 
+    SpecialMove s, FigureType p):
     from(f), to(t), special(s), promotionType(p) {}
 
-SpecialMove Move::getSpecial() const 
+SpecialMove Move::getSpecial() const
 {
 
     return special;
@@ -27,7 +27,7 @@ void Move::execute(Board& board) const
     Figure* movingFigure = board.at(from);
     Figure* captured = nullptr;
 
-    switch (special) 
+    switch (special)
     {
 
     case SpecialMove::NORMAL:
@@ -40,15 +40,15 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTLING_KING_SIDE: 
+    case SpecialMove::CASTLING_KING_SIDE:
     {
 
         int row = from.row;
-        
+
         board.set(to, movingFigure);
         board.set(from, nullptr);
-        
-        Position rookFrom{ row,7 }, rookTo{ row,5 };
+
+        Position rookFrom{ row, KS_ROOK_FROM_COL }, rookTo{ row, KS_ROOK_TO_COL };
         Figure* rook = board.at(rookFrom);
         board.set(rookTo, rook);
         board.set(rookFrom, nullptr);
@@ -56,14 +56,14 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTLING_QUEEN_SIDE: 
+    case SpecialMove::CASTLING_QUEEN_SIDE:
     {
 
         int row = from.row;
         board.set(to, movingFigure);
         board.set(from, nullptr);
-        
-        Position rookFrom{ row,0 }, rookTo{ row,3 };
+
+        Position rookFrom{ row, QS_ROOK_FROM_COL }, rookTo{ row, QS_ROOK_TO_COL };
         Figure* rook = board.at(rookFrom);
         board.set(rookTo, rook);
         board.set(rookFrom, nullptr);
@@ -71,10 +71,10 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::EN_PASSANT: 
+    case SpecialMove::EN_PASSANT:
     {
 
-        board.set(to, movingFigure);      
+        board.set(to, movingFigure);
         board.set(from, nullptr);
 
         int8_t delta = (int8_t)(from.row - to.row);
@@ -82,25 +82,27 @@ void Move::execute(Board& board) const
 
         captured = board.at(capPos);
         board.set(capPos, nullptr);
+
         break;
 
     }
-    case SpecialMove::PROMOTION: 
+    case SpecialMove::PROMOTION:
     {
-        
+
         board.set(from, nullptr);
         captured = board.at(to);
-        
+
         Figure* promo = nullptr;
 
-        switch (promotionType) 
+        switch (promotionType)
         {
 
-        case FigureType::QUEEN:  promo = new Queen(movingFigure->getColor()); break;
-        case FigureType::ROOK:   promo = new Rook(movingFigure->getColor()); break;
+        case FigureType::QUEEN: promo = new Queen(movingFigure->getColor()); break;
+        case FigureType::ROOK: promo = new Rook(movingFigure->getColor()); break;
         case FigureType::BISHOP: promo = new Bishop(movingFigure->getColor()); break;
         case FigureType::KNIGHT: promo = new Knight(movingFigure->getColor()); break;
         default: promo = new Queen(movingFigure->getColor()); break;
+
         }
 
         board.set(to, promo);
@@ -108,7 +110,7 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::DOUBLE_PAWN: 
+    case SpecialMove::DOUBLE_PAWN:
     {
 
         captured = nullptr;
@@ -116,6 +118,7 @@ void Move::execute(Board& board) const
         board.set(from, nullptr);
 
         break;
+
     }
     default: break;
 
@@ -132,7 +135,7 @@ void Move::undo(Board& board) const
     const Move& move = entry.move;
     Figure* movingFigure;
 
-    switch (move.special) 
+    switch (move.special)
     {
 
     case SpecialMove::NORMAL:
@@ -146,16 +149,16 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTLING_KING_SIDE: 
+    case SpecialMove::CASTLING_KING_SIDE:
     {
 
         int row = move.from.row;
-        
+
         movingFigure = board.at(move.to);
         board.set(move.from, movingFigure);
         board.set(move.to, nullptr);
-        
-        Position rookFrom{ row,5 }, rookTo{ row,7 };
+
+        Position rookFrom{ row, KS_ROOK_TO_COL }, rookTo{ row, KS_ROOK_FROM_COL };
         Figure* rook = board.at(rookFrom);
         board.set(rookTo, rook);
         board.set(rookFrom, nullptr);
@@ -164,15 +167,15 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTLING_QUEEN_SIDE: 
+    case SpecialMove::CASTLING_QUEEN_SIDE:
     {
 
         int row = move.from.row;
         movingFigure = board.at(move.to);
         board.set(move.from, movingFigure);
         board.set(move.to, nullptr);
-        
-        Position rookFrom{ row,3 }, rookTo{ row,0 };
+
+        Position rookFrom{ row, QS_ROOK_TO_COL }, rookTo{ row, QS_ROOK_FROM_COL };
         Figure* rook = board.at(rookFrom);
         board.set(rookTo, rook);
         board.set(rookFrom, nullptr);
@@ -181,9 +184,9 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::EN_PASSANT: 
+    case SpecialMove::EN_PASSANT:
     {
-        
+
         movingFigure = board.at(move.to);
         board.set(move.from, movingFigure);
         board.set(move.to, nullptr);
@@ -191,6 +194,7 @@ void Move::undo(Board& board) const
         Position capPosition{ move.from.row, move.to.col };
         board.set(capPosition, entry.captured);
         entry.captured = nullptr;
+
         break;
 
     }
@@ -198,7 +202,7 @@ void Move::undo(Board& board) const
     {
 
         Figure* promoted = board.at(move.to);
-        Color color = promoted->getColor();  
+        MyColor color = promoted->getColor();
         delete promoted;
 
         Figure* pawn = new Pawn(color);
@@ -209,14 +213,14 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::DOUBLE_PAWN: 
+    case SpecialMove::DOUBLE_PAWN:
     {
 
         movingFigure = board.at(move.to);
-        board.set(move.from, movingFigure);  
-        board.set(move.to, nullptr);       
-
+        board.set(move.from, movingFigure);
+        board.set(move.to, nullptr);
         entry.captured = nullptr;
+
         break;
 
     }
