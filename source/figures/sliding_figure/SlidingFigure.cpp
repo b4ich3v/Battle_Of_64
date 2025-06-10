@@ -1,7 +1,7 @@
 #include "SlidingFigure.h"
 #include "Board.h"
 
-SlidingFigure::SlidingFigure(Color color, FigureType type): 
+SlidingFigure::SlidingFigure(MyColor color, FigureType type): 
     Figure(color, type) {}
 
 MyVector<Move> SlidingFigure::generateSliding(const Board& board, const Position& from,
@@ -10,7 +10,7 @@ MyVector<Move> SlidingFigure::generateSliding(const Board& board, const Position
 
     MyVector<Move> result;
 
-    for (std::size_t i = 0; i < directions.size(); i++)
+    for (size_t i = 0; i < directions.size(); i++)
     {
 
         int deltaRow = directions[i].first;
