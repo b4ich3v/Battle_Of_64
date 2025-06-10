@@ -1,11 +1,11 @@
 #include "Figure.h"
 #pragma once
 
-class King: public Figure 
+class King: public Figure
 {
 public:
 
-    explicit King(Color color);
+    explicit King(MyColor color);
 
     MyVector<Move> generateMoves(const Board& board, const Position& from) const override;
 
