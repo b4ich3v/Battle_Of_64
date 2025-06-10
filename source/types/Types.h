@@ -1,4 +1,6 @@
 #include <iostream>
+#include "MyPair.hpp"
+#include "MyVector.hpp"
 #pragma once
 
 static constexpr int ROWS_COUNT = 8;
@@ -90,3 +92,33 @@ enum class SpecialMove: uint8_t
     DOUBLE_PAWN
 
 };
+
+static MyVector<MyPair<int, int>> makeDiagonalDirs()
+{
+
+    MyVector<MyPair<int, int>> dirs;
+    dirs.push_back({ -1, -1 });
+    dirs.push_back({ -1, +1 });
+    dirs.push_back({ +1, -1 });
+    dirs.push_back({ +1, +1 });
+
+    return dirs;
+
+}
+
+static MyVector<MyPair<int, int>> makeOrthogonalDirs()
+{
+
+    MyVector<MyPair<int, int>> dirs;
+    dirs.push_back({ -1,  0 });
+    dirs.push_back({ +1,  0 });
+    dirs.push_back({ 0, -1 });
+    dirs.push_back({ 0, +1 });
+
+    return dirs;
+
+}
+
+static const MyVector<MyPair<int, int>> DIAGONAL_DIRS = makeDiagonalDirs();
+
+static const MyVector<MyPair<int, int>> ORTHOGONAL_DIRS = makeOrthogonalDirs();
