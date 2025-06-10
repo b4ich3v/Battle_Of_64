@@ -30,6 +30,8 @@ static constexpr int WHITE_BACK_ROW = BOARD_SIZE - 1;
 static constexpr int WHITE_PAWN_ROW = BOARD_SIZE - 2;
 static constexpr int BLACK_BACK_ROW = 0;
 static constexpr int BLACK_PAWN_ROW = 1;
+static constexpr int WHITE_PROMOTE_ROW = 0;
+static constexpr int BLACK_PROMOTE_ROW = BOARD_SIZE - 1;
 
 static constexpr int KS_EMPTY_COL1 = 5; 
 static constexpr int KS_EMPTY_COL2 = 6; 
