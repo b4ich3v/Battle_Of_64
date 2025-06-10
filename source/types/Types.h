@@ -51,6 +51,8 @@ static constexpr int MIN_SCORE = -100000;
 static constexpr int MAX_SCORE = 100000;
 static constexpr int DEFAULT_DEPTH = 3;
 
+static constexpr int KING_CASTLE_SHIFT = 2;
+
 enum class MyColor: uint8_t
 {
 
@@ -119,6 +121,26 @@ static MyVector<MyPair<int, int>> makeOrthogonalDirs()
 
 }
 
+static MyVector<MyPair<int, int>> makeKingDirs()
+{
+
+    MyVector<MyPair<int, int>> dirs;
+
+    dirs.push_back({ +1,  0 });
+    dirs.push_back({ +1, +1 });
+    dirs.push_back({ 0, +1 });
+    dirs.push_back({ -1, +1 });
+    dirs.push_back({ -1,  0 });
+    dirs.push_back({ -1, -1 });
+    dirs.push_back({ 0, -1 });
+    dirs.push_back({ +1, -1 });
+
+    return dirs;
+
+}
+
 static const MyVector<MyPair<int, int>> DIAGONAL_DIRS = makeDiagonalDirs();
 
 static const MyVector<MyPair<int, int>> ORTHOGONAL_DIRS = makeOrthogonalDirs();
+
+static const MyVector<MyPair<int, int>> KING_DIRS = makeKingDirs();
