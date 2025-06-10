@@ -1,13 +1,10 @@
-#include <iostream>
 #include <random>
+#include <iostream>
 #include "Board.h"
 #include "Rook.h"
 #include "Move.h"
 #include "AIPlayer.h"
 #include "Pawn.h"
-#include <iostream>
-#include <random>
-#include <vector>                
 #include "Board.h"
 #include "Move.h"
 #include "Pawn.h"
