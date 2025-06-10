@@ -2,18 +2,6 @@
 #include "Position.h"
 #pragma once
 
-enum class SpecialMove: uint8_t
-{
-
-    NORMAL,
-    CASTLING_KING_SIDE, 
-    CASTLING_QUEEN_SIDE,
-    EN_PASSANT,
-    PROMOTION,
-    DOUBLE_PAWN
-
-};
-
 struct Move 
 {
 public:
