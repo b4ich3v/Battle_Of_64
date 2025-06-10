@@ -102,10 +102,10 @@ void VisitorVisualization::drawBoard()
 
     if (!graphics) return;
 
-    for (int currentRowIndex = 0;currentRowIndex < 8;currentRowIndex++)
+    for (int currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0;currentColIndex < 8;currentColIndex++)
+        for (int currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             Color color = ((currentRowIndex + currentColIndex) % 2 == 0) ? Color(255, 240, 217, 181) : Color(255, 181, 136, 99);
@@ -132,4 +132,3 @@ void VisitorVisualization::drawFigure(const Figure& figure)
     graphics->DrawImage(image, position.col * size, position.row * size, size, size);
 
 }
-
