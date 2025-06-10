@@ -5,7 +5,7 @@ class Queen: public SlidingFigure
 {
 public:
 
-    explicit Queen(Color color);
+    explicit Queen(MyColor color);
 
     MyVector<Move> generateMoves(const Board& board,const Position& from) const override;
 
