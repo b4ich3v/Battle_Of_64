@@ -5,7 +5,7 @@ class Knight: public Figure
 {
 public:
 
-    explicit Knight(Color color);
+    explicit Knight(MyColor color);
 
     MyVector<Move> generateMoves(const Board& board, const Position& from) const override;
 
