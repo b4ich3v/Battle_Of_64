@@ -1,29 +1,9 @@
 #include "Position.h"
-#include "Figure.h"
-#include "Move.h"
 #include "Writer.h"
+#include "HistoryEntry.h"
 #include "Reader.h"
 #include "VisitorVisualization.h"
 #pragma once
-
-struct HistoryEntry
-{
-public:
-
-    Move move;
-    Figure* captured;
-
-    MyVector<bool> castleKingSide;
-    MyVector<bool> castleQueenSide;
-
-    HistoryEntry();
-
-    HistoryEntry(const Move& move, Figure* captured);
-
-    HistoryEntry(const Move& move, Figure* captured,
-        const MyVector<bool>& prevKing, const MyVector<bool>& prevQueen);
-
-};
 
 class Board
 {
@@ -75,6 +55,8 @@ public:
 
     bool isInCheck(MyColor color) const;
 
+    bool hasLegalMoves(MyColor side);          
+
     bool isEnPassantSquare(const Position& cap, MyColor pawnColor) const;
 
     MyVector<Move> generateAllLegalMoves(MyColor side);
@@ -85,7 +67,7 @@ public:
 
     HistoryEntry popHistory();
 
-    void serialize (Writer& writer) const;
+    void serialize(Writer& writer) const;
 
     void deserialize(Reader& reader);
 
