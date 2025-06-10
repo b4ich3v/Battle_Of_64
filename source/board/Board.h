@@ -17,17 +17,19 @@ private:
 
     Board();
 
-    ~Board();
-
     Board(const Board&) = delete;
 
     Board& operator = (const Board&) = delete;
+
+    ~Board();
 
     void free();
 
 public:
 
     static Board& instance();
+
+    void setupInitialPosition();
 
     bool isValid(const Position& position) const;
 
@@ -36,8 +38,6 @@ public:
     void set(const Position& position, Figure* figure);
 
     void accept(Visitor& visitor) const;
-
-    void setupInitialPosition();
 
     void clear();
 
