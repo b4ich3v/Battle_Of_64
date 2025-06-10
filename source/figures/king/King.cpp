@@ -1,28 +1,20 @@
 #include "King.h"
 #include "Board.h"
 
-King::King(Color color): 
+King::King(MyColor color): 
     Figure(color, FigureType::KING) {}
 
 MyVector<Move> King::generateMoves(const Board& board,
     const Position& from) const
 {
 
-    static const MyPair<int, int> offsets[8] = 
-    {
-
-        { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1},
-        {-1, 0}, {-1,-1}, { 0,-1}, { 1,-1}
-
-    };
-
     MyVector<Move> move;
 
-    for (int i = 0; i < 8; i++)
+    for (size_t i = 0; i < ROWS_COUNT; i++)
     {
 
-        Position to{ (int8_t)(from.row + offsets[i].first),
-                     (int8_t)(from.col + offsets[i].second) };
+        Position to{ (int8_t)(from.row + KING_DIRS[i].first),
+                     (int8_t)(from.col + KING_DIRS[i].second) };
 
         if (!board.isValid(to)) continue;
 
@@ -36,7 +28,7 @@ MyVector<Move> King::generateMoves(const Board& board,
     if (board.canCastleKingSide(getColor())) 
     {
 
-        Position kingSide{ from.row, from.col + 2 };    
+        Position kingSide{ from.row, from.col + KING_CASTLE_SHIFT };
         move.push_back(Move(from, kingSide, SpecialMove::CASTLING_KING_SIDE));
 
     }
@@ -44,7 +36,7 @@ MyVector<Move> King::generateMoves(const Board& board,
     if (board.canCastleQueenSide(getColor())) 
     {
 
-        Position queenSide{ from.row, from.col - 2 };     
+        Position queenSide{ from.row, from.col - KING_CASTLE_SHIFT };
         move.push_back(Move(from, queenSide, SpecialMove::CASTLING_QUEEN_SIDE));
 
     }
@@ -63,6 +55,6 @@ void King::accept(Visitor& visitor) const
 char King::symbol() const
 {
 
-    return (getColor() == Color::WHITE ? 'K' : 'k');
+    return (getColor() == MyColor::WHITE ? 'K' : 'k');
 
 }
