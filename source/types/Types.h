@@ -34,7 +34,20 @@ static constexpr int KS_EMPTY_COL2 = 6;
 
 static constexpr int QS_EMPTY_COL1 = 1; 
 static constexpr int QS_EMPTY_COL2 = 2; 
-static constexpr int QS_EMPTY_COL3 = 3; 
+static constexpr int QS_EMPTY_COL3 = 3;
+
+static constexpr int ALPHA_INIT = -1000000;
+static constexpr int BETA_INIT = 1000000;
+
+static constexpr int VALUE_PAWN = 100;
+static constexpr int VALUE_KNIGHT = 320;
+static constexpr int VALUE_BISHOP = 330;
+static constexpr int VALUE_ROOK = 500;
+static constexpr int VALUE_QUEEN = 900;
+
+static constexpr int MIN_SCORE = -100000;
+static constexpr int MAX_SCORE = 100000;
+static constexpr int DEFAULT_DEPTH = 3;
 
 enum class MyColor: uint8_t
 {
