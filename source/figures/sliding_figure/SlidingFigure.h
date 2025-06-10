@@ -1,5 +1,5 @@
-#pragma once
 #include "Figure.h"
+#pragma once
 
 class SlidingFigure: public Figure
 {
@@ -10,7 +10,7 @@ protected:
 
 public:
 
-    SlidingFigure(Color color, FigureType type);
+    SlidingFigure(MyColor color, FigureType type);
 
     MyVector<Move> generateMoves(const Board& board, const Position& from) const override;
 
