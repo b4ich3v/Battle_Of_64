@@ -139,8 +139,28 @@ static MyVector<MyPair<int, int>> makeKingDirs()
 
 }
 
+static MyVector<MyPair<int, int>> makeKnightDirs()
+{
+
+    MyVector<MyPair<int, int>> dirs;
+
+    dirs.push_back({ -2, -1 });
+    dirs.push_back({ -2, +1 });
+    dirs.push_back({ -1, -2 });
+    dirs.push_back({ -1, +2 });
+    dirs.push_back({ +1, -2 });
+    dirs.push_back({ +1, +2 });
+    dirs.push_back({ +2, -1 });
+    dirs.push_back({ +2, +1 });
+
+    return dirs;
+
+}
+
 static const MyVector<MyPair<int, int>> DIAGONAL_DIRS = makeDiagonalDirs();
 
 static const MyVector<MyPair<int, int>> ORTHOGONAL_DIRS = makeOrthogonalDirs();
 
 static const MyVector<MyPair<int, int>> KING_DIRS = makeKingDirs();
+
+static const MyVector<MyPair<int, int>> KNIGHT_DIRS = makeKnightDirs();
