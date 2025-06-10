@@ -5,16 +5,18 @@
 #include "King.h"
 #include "Pawn.h"
 #include "Board.h"
+#include "Types.h"
+#include "FigureFactory.h"
 
 Board::Board(): table(), history()
 {
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
         MyVector<Figure*> currentRow;
 
-        for (int currentColIndex = 0; currentColIndex < 8; ++currentColIndex)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             currentRow.push_back(nullptr);
@@ -45,8 +47,8 @@ Board& Board::instance()
 bool Board::isValid(const Position& position) const
 {
 
-    return position.row >= 0 && position.row < 8
-        && position.col >= 0 && position.col < 8;
+    return position.row >= 0 && position.row < ROWS_COUNT
+        && position.col >= 0 && position.col < COLS_COUNT;
 
 }
 
@@ -73,10 +75,10 @@ void Board::accept(Visitor& visitor) const
 
     visitor.visit(*this);
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             if (Figure* currentFigure = at({ currentRowIndex,currentColIndex })) currentFigure->accept(visitor);
@@ -90,10 +92,10 @@ void Board::accept(Visitor& visitor) const
 void Board::setupInitialPosition()
 {
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             set({ currentRowIndex,currentColIndex }, nullptr);
@@ -111,35 +113,33 @@ void Board::setupInitialPosition()
     castleQS.push_back(true);
     castleQS.push_back(true);
 
-    set({ 7,0 }, new Rook(MyColor::WHITE));
-    set({ 7,1 }, new Knight(MyColor::WHITE));
-    set({ 7,2 }, new Bishop(MyColor::WHITE));
-    set({ 7,3 }, new Queen(MyColor::WHITE));
-    set({ 7,4 }, new King(MyColor::WHITE));
-    set({ 7,5 }, new Bishop(MyColor::WHITE));
-    set({ 7,6 }, new Knight(MyColor::WHITE));
-    set({ 7,7 }, new Rook(MyColor::WHITE));
-
-    for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+    for (size_t currentColIndex = 0; currentColIndex < BOARD_SIZE; currentColIndex++) 
     {
 
-        set({ 6,currentColIndex }, new Pawn(MyColor::WHITE));
+        Figure* figure = FigureFactory::create(backrank[currentColIndex], MyColor::WHITE);
+        set({ WHITE_BACK_ROW, int8_t(currentColIndex) }, figure);
 
     }
 
-    set({ 0,0 }, new Rook(MyColor::BLACK));
-    set({ 0,1 }, new Knight(MyColor::BLACK));
-    set({ 0,2 }, new Bishop(MyColor::BLACK));
-    set({ 0,3 }, new Queen(MyColor::BLACK));
-    set({ 0,4 }, new King(MyColor::BLACK));
-    set({ 0,5 }, new Bishop(MyColor::BLACK));
-    set({ 0,6 }, new Knight(MyColor::BLACK));
-    set({ 0,7 }, new Rook(MyColor::BLACK));
-
-    for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+    for (size_t currentColIndex = 0; currentColIndex < BOARD_SIZE; currentColIndex++) 
     {
 
-        set({ 1,currentColIndex }, new Pawn(MyColor::BLACK));
+        set({ WHITE_PAWN_ROW, int8_t(currentColIndex) }, FigureFactory::create(FigureType::PAWN, MyColor::WHITE));
+
+    }
+
+    for (size_t currentColIndex = 0; currentColIndex < BOARD_SIZE; currentColIndex++) 
+    {
+
+        Figure* figure = FigureFactory::create(backrank[currentColIndex], MyColor::BLACK);
+        set({ BLACK_BACK_ROW, int8_t(currentColIndex) }, figure);
+
+    }
+    
+    for (size_t currentColIndex = 0; currentColIndex < BOARD_SIZE; currentColIndex++) 
+    {
+
+        set({ BLACK_PAWN_ROW, int8_t(currentColIndex) }, FigureFactory::create(FigureType::PAWN, MyColor::BLACK));
 
     }
 
@@ -183,12 +183,12 @@ void Board::clear()
     free();
     table.clear();
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
         MyVector<Figure*> currentRow;
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             currentRow.push_back(nullptr);
@@ -219,7 +219,7 @@ void Board::applyMove(const Move& move)
     {
 
         MyColor moverColor = at(move.from)->getColor();
-        int8_t dir = (moverColor == MyColor::WHITE ? +1 : -1);
+        int8_t dir = (moverColor == MyColor::WHITE ? EP_DIR_BLACK : EP_DIR_WHITE);
         Position capPosition{ (int8_t)(move.to.row + dir), move.to.col };
         captured = at(capPosition);
 
@@ -250,8 +250,8 @@ void Board::applyMove(const Move& move)
         else if (moved->getType() == FigureType::ROOK)
         {
 
-            if (move.from.col == 7) castleKS[idx] = false;  
-            if (move.from.col == 0) castleQS[idx] = false;  
+            if (move.from.col == KS_ROOK_FROM_COL) castleKS[idx] = false;
+            if (move.from.col == QS_ROOK_FROM_COL) castleQS[idx] = false;
 
         }
 
@@ -262,8 +262,8 @@ void Board::applyMove(const Move& move)
 
         int idx = int(captured->getColor());
 
-        if (move.to.col == 7) castleKS[idx] = false;
-        if (move.to.col == 0) castleQS[idx] = false;
+        if (move.to.col == KS_ROOK_FROM_COL) castleKS[idx] = false;
+        if (move.to.col == QS_ROOK_FROM_COL) castleQS[idx] = false;
 
     }
 
@@ -275,7 +275,7 @@ void Board::applyMove(const Move& move)
     if (move.special == SpecialMove::CASTLING_KING_SIDE)
     {
 
-        Position rookSq{ move.to.row, 5 };
+        Position rookSq{ move.to.row, KS_VIA_COL };
         if (Figure* rook = at(rookSq))
             rook->setPosition(rookSq);
 
@@ -283,7 +283,7 @@ void Board::applyMove(const Move& move)
     else if (move.special == SpecialMove::CASTLING_QUEEN_SIDE)
     {
 
-        Position rookSq{ move.to.row, 3 };
+        Position rookSq{ move.to.row, QS_VIA_COL };
         if (Figure* rook = at(rookSq))
             rook->setPosition(rookSq);
 
@@ -315,14 +315,14 @@ bool Board::canCastleKingSide(MyColor color) const
     int index = (int)(color);
     if (!castleKS[index]) return false;
 
-    int row = (color == MyColor::WHITE ? 7 : 0);
+    int row = (color == MyColor::WHITE ? WHITE_BACK_ROW : BLACK_BACK_ROW);
 
-    Figure* king = at(Position(row, 4));
-    Figure* rook = at(Position(row, 7));
+    Figure* king = at(Position(row, KING_START_COL));
+    Figure* rook = at(Position(row, KS_ROOK_FROM_COL));
 
     if (!king || !rook) return false;
     if (king->getType() != FigureType::KING || rook->getType() != FigureType::ROOK) return false;
-    if (at(Position(row, 5)) || at(Position(row, 6))) return false;
+    if (at(Position(row, KS_EMPTY_COL1)) || at(Position(row, KS_EMPTY_COL2))) return false;
 
     return true;
 
@@ -334,14 +334,14 @@ bool Board::canCastleQueenSide(MyColor color) const
     int index = (int)(color);
     if (!castleQS[index]) return false;
 
-    int row = (color == MyColor::WHITE ? 7 : 0);
+    int row = (color == MyColor::WHITE ? WHITE_BACK_ROW : BLACK_BACK_ROW);
 
-    Figure* king = at(Position(row, 4));
-    Figure* rook = at(Position(row, 0));
+    Figure* king = at(Position(row, KING_START_COL));
+    Figure* rook = at(Position(row, KS_ROOK_FROM_COL));
 
     if (!king || !rook) return false;
     if (king->getType() != FigureType::KING || rook->getType() != FigureType::ROOK) return false;
-    if (at(Position(row, 1)) || at(Position(row, 2)) || at(Position(row, 3))) return false;
+    if (at(Position(row, QS_EMPTY_COL1)) || at(Position(row, QS_EMPTY_COL2)) || at(Position(row, QS_EMPTY_COL3))) return false;
 
     return true;
 
@@ -350,10 +350,10 @@ bool Board::canCastleQueenSide(MyColor color) const
 bool Board::isUnderAttack(const Position& position, MyColor attacker) const
 {
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             Figure* currentFigure = at({ currentRowIndex,currentColIndex });
@@ -383,12 +383,12 @@ bool Board::isUnderAttack(const Position& position, MyColor attacker) const
 bool Board::isInCheck(MyColor color) const
 {
 
-    Position kingPosition{ -1,-1 };
+    Position kingPosition{ INVALID_ROW, INVALID_COL };
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             if (Figure* currentFigure = at({ currentRowIndex,currentColIndex }))
@@ -424,7 +424,7 @@ bool Board::isEnPassantSquare(const Position& cap, MyColor pawnColor) const
 
     if (move.special != SpecialMove::DOUBLE_PAWN) return false;
 
-    int8_t targetRow = (pawnColor == MyColor::WHITE ? 3 : 4);
+    int8_t targetRow = (pawnColor == MyColor::WHITE ? EP_ROW_WHITE : EP_ROW_BLACK);
 
     return (cap.row == targetRow && cap.col == move.to.col);
 
@@ -435,10 +435,10 @@ MyVector<Move> Board::generateAllLegalMoves(MyColor side)
 
     MyVector<Move> allMoves;
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             Figure* currentFigure = table[currentRowIndex][currentColIndex];
@@ -480,7 +480,7 @@ bool Board::isLegalMove(const Move& move, MyColor side)
         if (!canCastleKingSide(side))
             return false;
 
-        Position via{ move.from.row, 5 };
+        Position via{ move.from.row, KS_VIA_COL };
         if (isInCheck(side) ||
             isUnderAttack(via, oppositeColor(side)) ||
             isUnderAttack(move.to, oppositeColor(side)))
@@ -493,7 +493,7 @@ bool Board::isLegalMove(const Move& move, MyColor side)
         if (!canCastleQueenSide(side))
             return false;
 
-        Position via{ move.from.row, 3 };
+        Position via{ move.from.row, QS_VIA_COL };
         if (isInCheck(side) ||
             isUnderAttack(via, oppositeColor(side)) ||
             isUnderAttack(move.to, oppositeColor(side)))
@@ -535,10 +535,10 @@ HistoryEntry Board::popHistory()
 void Board::serialize(Writer& writer) const
 {
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             Piece piece = figureToPiece(at({ (int8_t)currentRowIndex,(int8_t)currentColIndex }));
@@ -555,10 +555,10 @@ void Board::deserialize(Reader& reader)
 
     clear();
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
+        for (size_t currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
             Piece piece; reader.read(&piece, 1);
