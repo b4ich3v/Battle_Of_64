@@ -1,28 +1,20 @@
 #include "Knight.h"
 #include "Board.h"
 
-Knight::Knight(Color color): 
+Knight::Knight(MyColor color): 
     Figure(color, FigureType::KNIGHT) {}
 
 MyVector<Move> Knight::generateMoves(const Board& board,
     const Position& from) const
 {
 
-    static const int8_t delta[8][2] = 
-    {
-
-        {-2,-1},{-2,1},{-1,-2},{-1,2},
-        {1,-2},{1,2},{2,-1},{2,1}
-
-    };
-
     MyVector<Move> move;
 
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < ROWS_COUNT; i++)
     {
 
-        int8_t deltaRow = delta[i][0];
-        int8_t deltoCol = delta[i][1];
+        int8_t deltaRow = KNIGHT_DIRS[i].first;
+        int8_t deltoCol = KNIGHT_DIRS[i].second;
 
         Position to{ (int8_t)(from.row + deltaRow),
                      (int8_t)(from.col + deltoCol) };
@@ -50,6 +42,6 @@ void Knight::accept(Visitor& visitor) const
 char Knight::symbol() const
 {
 
-    return (color == Color::WHITE ? 'N' : 'n');
+    return (color == MyColor::WHITE ? 'N' : 'n');
 
 }
