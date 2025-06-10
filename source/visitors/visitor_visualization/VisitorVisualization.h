@@ -6,16 +6,7 @@
 #include "Position.h"
 #pragma once
 
-enum class Piece: uint8_t
-{
-
-    NONE,
-    WP, WN, WB, WR, WQ, WK,
-    BP, BN, BB, BR, BQ, BK
-
-};
-
-class VisitorVisualization: public Visitor
+class VisitorVisualization: public Visitor 
 {
 private:
 
@@ -59,4 +50,3 @@ public:
     void visit(const Pawn& pawn) override;
 
 };
-
