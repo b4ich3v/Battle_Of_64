@@ -6,6 +6,8 @@
 #include "AIPlayer.h"
 #include "Pawn.h"
 #include "Board.h"
+#include "Knight.h"
+#include "Bishop.h"
 #include "Move.h"
 #include "Pawn.h"
 #include "King.h"                
@@ -345,6 +347,75 @@ bool t_enpass_late_illegal()
 
 }
 
+bool t_double_check_mate()
+{
+
+    Board& board = Board::instance();
+    board.setupInitialPosition();
+
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
+    {
+
+        for (int currrentColIndex = 0; currrentColIndex < 8; currrentColIndex++)
+        {
+
+            if (Figure* figure = board.at({ currentRowIndex,currrentColIndex })) 
+            {
+
+                delete figure; board.set({ currentRowIndex,currrentColIndex }, nullptr);
+
+            }
+
+        }
+
+    }
+
+    board.set(sq("e8"), new King(MyColor::BLACK));
+    board.set(sq("g1"), new King(MyColor::WHITE));
+    board.set(sq("g2"), new Queen(MyColor::BLACK));   
+    board.set(sq("c6"), new Bishop(MyColor::BLACK));  
+
+    EXPECT(!board.hasLegalMoves(MyColor::WHITE), "White has no moves (mate)");
+    EXPECT(board.isInCheck(MyColor::WHITE), "White king is in check");
+
+    return true;
+
+}
+
+bool t_castle_after_moved_king_illegal()
+{
+
+    Board& board = Board::instance();
+    board.setupInitialPosition();
+
+    Move kingStep(sq("e1"), sq("e2"));
+    board.applyMove(kingStep);
+    board.undoMove(kingStep);
+
+    Move castle(sq("e1"), sq("g1"), SpecialMove::CASTLING_KING_SIDE);
+    EXPECT(!board.isLegalMove(castle, MyColor::WHITE), "Castling after king has moved must be illegal");
+
+    return true;
+
+}
+
+bool t_castle_after_moved_rook_illegal()
+{
+
+    Board& board = Board::instance();
+    board.setupInitialPosition();
+
+    Move rookStep(sq("h1"), sq("h2"));
+    board.applyMove(rookStep);
+    board.undoMove(rookStep);
+
+    Move castle(sq("e1"), sq("g1"), SpecialMove::CASTLING_KING_SIDE);
+    EXPECT(!board.isLegalMove(castle, MyColor::WHITE), "Castling after rook has moved must be illegal");
+
+    return true;
+
+}
+
 int main()
 {
 
@@ -359,6 +430,9 @@ int main()
     RUN(t_apply_undo_stress);
     RUN(t_enpass_late_illegal);
     RUN(t_castle_illegal_due_attack);
+    RUN(t_double_check_mate);
+    RUN(t_castle_after_moved_king_illegal);
+    RUN(t_castle_after_moved_rook_illegal);
 
     std::cout << "All tests passed!" << std::endl;
     return EXIT_SUCCESS;
