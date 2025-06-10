@@ -41,6 +41,10 @@ private:
 
     GameEngine();
 
+    GameEngine(const GameEngine& other) = delete;
+
+    GameEngine& operator = (const GameEngine& other) = delete;
+
     ~GameEngine();
 
     ULONG_PTR gdipToken{ 0 };
