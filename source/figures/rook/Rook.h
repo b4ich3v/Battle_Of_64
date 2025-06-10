@@ -5,7 +5,7 @@ class Rook: public SlidingFigure
 {
 public:
 
-    explicit Rook(Color color);
+    explicit Rook(MyColor color);
 
     MyVector<Move> generateMoves(const Board& board, const Position& from) const override;
 
