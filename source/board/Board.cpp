@@ -13,11 +13,11 @@ HistoryEntry::HistoryEntry(const Move& move, Figure* captured) :
     move(move), captured(captured) {}
 
 HistoryEntry::HistoryEntry(const Move& move, Figure* captured,
-    const MyVector<bool>& prevKing, const MyVector<bool>& prevQueen) :
+    const MyVector<bool>& prevKing, const MyVector<bool>& prevQueen):
     move(move), captured(captured),
     castleKingSide(prevKing), castleQueenSide(prevQueen) {}
 
-Board::Board() : table(), history()
+Board::Board(): table(), history()
 {
 
     for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
@@ -172,6 +172,15 @@ void Board::free()
 
     }
 
+    for (size_t i = 0; i < history.size(); i++)
+    {
+
+        HistoryEntry& currentHistory = history[i];
+        delete currentHistory.captured;
+        currentHistory.captured = nullptr;
+
+    }
+
     table.clear();
     history.clear();
     castleKS.clear();
@@ -233,17 +242,74 @@ void Board::applyMove(const Move& move)
 
     }
 
-    HistoryEntry entry(move, captured, castleKS, castleQS);
-    pushHistory(entry);
+    MyVector<bool> prevKS = castleKS;
+    MyVector<bool> prevQS = castleQS;
+
     move.execute(*this);
+
+    if (Figure* moved = at(move.to))
+    {
+
+        int idx = int(moved->getColor());
+
+        if (moved->getType() == FigureType::KING)
+        {
+
+            castleKS[idx] = castleQS[idx] = false;   
+
+        }
+        else if (moved->getType() == FigureType::ROOK)
+        {
+
+            if (move.from.col == 7) castleKS[idx] = false;  
+            if (move.from.col == 0) castleQS[idx] = false;  
+
+        }
+
+    }
+
+    if (captured && captured->getType() == FigureType::ROOK)
+    {
+
+        int idx = int(captured->getColor());
+
+        if (move.to.col == 7) castleKS[idx] = false;
+        if (move.to.col == 0) castleQS[idx] = false;
+
+    }
+
+    pushHistory({ move, captured, prevKS, prevQS });
+
+    if (Figure* moved = at(move.to))
+        moved->setPosition(move.to);
+
+    if (move.special == SpecialMove::CASTLING_KING_SIDE)
+    {
+
+        Position rookSq{ move.to.row, 5 };
+        if (Figure* rook = at(rookSq))
+            rook->setPosition(rookSq);
+
+    }
+    else if (move.special == SpecialMove::CASTLING_QUEEN_SIDE)
+    {
+
+        Position rookSq{ move.to.row, 3 };
+        if (Figure* rook = at(rookSq))
+            rook->setPosition(rookSq);
+
+    }
 
 }
 
 void Board::undoMove(const Move&)
 {
 
-    auto entry = popHistory();
+    HistoryEntry entry = popHistory();
     entry.move.undo(*this);
+
+    castleKS = entry.castleKingSide;   
+    castleQS = entry.castleQueenSide;
 
 }
 
@@ -330,10 +396,10 @@ bool Board::isInCheck(MyColor color) const
 
     Position kingPosition{ -1,-1 };
 
-    for (int currentRowIndex = 0; currentRowIndex < 8; ++currentRowIndex)
+    for (int currentRowIndex = 0; currentRowIndex < 8; currentRowIndex++)
     {
 
-        for (int currentColIndex = 0; currentColIndex < 8; ++currentColIndex)
+        for (int currentColIndex = 0; currentColIndex < 8; currentColIndex++)
         {
 
             if (Figure* currentFigure = at({ currentRowIndex,currentColIndex }))
@@ -353,7 +419,7 @@ bool Board::isInCheck(MyColor color) const
 
     }
 
-    if (kingPosition.row < 0) throw std::runtime_error("isInCheck: king not found on board");
+    if (kingPosition.row < 0) return true;
 
     return isUnderAttack(kingPosition, oppositeColor(color));
 
@@ -410,6 +476,41 @@ MyVector<Move> Board::generateAllLegalMoves(MyColor side)
 
 bool Board::isLegalMove(const Move& move, MyColor side)
 {
+
+    if (move.special == SpecialMove::EN_PASSANT)
+    {
+
+        if (!isEnPassantSquare(move.to, side))
+            return false;   
+
+    }
+
+    if (move.special == SpecialMove::CASTLING_KING_SIDE)
+    {
+        
+        if (!canCastleKingSide(side))
+            return false;
+
+        Position via{ move.from.row, 5 };
+        if (isInCheck(side) ||
+            isUnderAttack(via, oppositeColor(side)) ||
+            isUnderAttack(move.to, oppositeColor(side)))
+            return false;
+
+    }
+    else if (move.special == SpecialMove::CASTLING_QUEEN_SIDE)
+    {
+
+        if (!canCastleQueenSide(side))
+            return false;
+
+        Position via{ move.from.row, 3 };
+        if (isInCheck(side) ||
+            isUnderAttack(via, oppositeColor(side)) ||
+            isUnderAttack(move.to, oppositeColor(side)))
+            return false;
+
+    }
 
     applyMove(move);
     bool isValid = !isInCheck(side);
@@ -488,7 +589,7 @@ Piece Board::figureToPiece(const Figure* figure)
 
     if (!figure) return Piece::NONE;
 
-    switch (figure->getType()) 
+    switch (figure->getType())
     {
 
     case FigureType::PAWN: return (figure->getColor() == MyColor::WHITE) ? Piece::WP : Piece::BP;
@@ -508,7 +609,7 @@ Figure* Board::createFigureFromPiece(Piece piece)
 
     MyColor color = (piece <= Piece::WK) ? MyColor::WHITE : MyColor::BLACK;
 
-    switch (piece) 
+    switch (piece)
     {
 
     case Piece::WP: case Piece::BP: return new Pawn(color);
@@ -523,4 +624,9 @@ Figure* Board::createFigureFromPiece(Piece piece)
 
 }
 
+bool Board::hasLegalMoves(MyColor side)
+{
 
+    return !generateAllLegalMoves(side).empty();
+
+}
