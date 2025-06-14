@@ -10,9 +10,9 @@
 Move::Move(): from{ 0,0 }, to{ 0,0 },
 special(SpecialMove::NORMAL), promotionType(FigureType::QUEEN) {}
 
-Move::Move(Position f, Position t,
-    SpecialMove s, FigureType p):
-    from(f), to(t), special(s), promotionType(p) {}
+Move::Move(Position from, Position to,
+    SpecialMove specialMove, FigureType type):
+    from(from), to(to), special(specialMove), promotionType(type) {}
 
 SpecialMove Move::getSpecial() const
 {
@@ -30,7 +30,7 @@ void Move::execute(Board& board) const
     switch (special)
     {
 
-    case SpecialMove::NORMAL:
+    case SpecialMove::NORMAL: // plain move, capture
     {
 
         captured = board.at(to);
@@ -40,7 +40,7 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTLING_KING_SIDE:
+    case SpecialMove::CASTLING_KING_SIDE: // king two steps right and rook hop
     {
 
         int row = from.row;
@@ -56,7 +56,7 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTLING_QUEEN_SIDE:
+    case SpecialMove::CASTLING_QUEEN_SIDE: // king two steps left and rook hop
     {
 
         int row = from.row;
@@ -71,7 +71,7 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::EN_PASSANT:
+    case SpecialMove::EN_PASSANT: // capture pawn behind target square
     {
 
         board.set(to, movingFigure);
@@ -86,7 +86,7 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::PROMOTION:
+    case SpecialMove::PROMOTION: // replace pawn with new piece
     {
 
         board.set(from, nullptr);
@@ -110,7 +110,7 @@ void Move::execute(Board& board) const
         break;
 
     }
-    case SpecialMove::DOUBLE_PAWN:
+    case SpecialMove::DOUBLE_PAWN: // two-square pawn push
     {
 
         captured = nullptr;
@@ -124,21 +124,21 @@ void Move::execute(Board& board) const
 
     }
 
-    board.pushHistory({ *this, captured });
+    board.pushHistory({ *this, captured }); // record for undo()
 
 }
 
 void Move::undo(Board& board) const
 {
 
-    auto entry = board.popHistory();
+    auto entry = board.popHistory(); // fetch last record
     const Move& move = entry.move;
     Figure* movingFigure;
 
     switch (move.special)
     {
 
-    case SpecialMove::NORMAL:
+    case SpecialMove::NORMAL: // restore piece, capture
     {
 
         movingFigure = board.at(move.to);
@@ -149,7 +149,7 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTLING_KING_SIDE:
+    case SpecialMove::CASTLING_KING_SIDE: // un-castle
     {
 
         int row = move.from.row;
@@ -167,7 +167,7 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::CASTLING_QUEEN_SIDE:
+    case SpecialMove::CASTLING_QUEEN_SIDE: 
     {
 
         int row = move.from.row;
@@ -184,7 +184,7 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::EN_PASSANT:
+    case SpecialMove::EN_PASSANT: // restore captured pawn
     {
 
         movingFigure = board.at(move.to);
@@ -198,7 +198,7 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::PROMOTION:
+    case SpecialMove::PROMOTION: // delete promoted, respawn pawn
     {
 
         Figure* promoted = board.at(move.to);
@@ -213,7 +213,7 @@ void Move::undo(Board& board) const
         break;
 
     }
-    case SpecialMove::DOUBLE_PAWN:
+    case SpecialMove::DOUBLE_PAWN: // rewind two-step push
     {
 
         movingFigure = board.at(move.to);
