@@ -54,7 +54,7 @@ The goal is to demonstrate that a full chess stack-move generation, alpha-beta s
 ## **Limitations**
 Although it boots and you can finish a game, **Battle Of 64 is** still very much a bare‑bones prototype. The shortcomings below expose just how far the engine is from production‑ready and outline where fresh contributions are badly needed:
 
-**Material‑only evaluation** – no piece‑square tables, king safety or mobility, the AI compensates with depth and random noise but positional understanding is shallow.
+* **Material‑only evaluation** – no piece‑square tables, king safety or mobility, the AI compensates with depth and random noise but positional understanding is shallow.
 * **No move ordering / quiescence / transposition table** - `alpha‑beta` explores many redundant nodes, depths beyond 5 become slow.
 * **No opening book nor end‑game tablebases** - the engine must "discover" every move, early game looks naive, late end‑gam-es may miss forced mates.
 * **Single‑threaded** - search runs on the GUI thread, large depths can freeze the interface for >1 s.
