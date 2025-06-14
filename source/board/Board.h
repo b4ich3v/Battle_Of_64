@@ -9,35 +9,35 @@ class Board
 {
 private:
 
-    MyVector<bool> castleKS;
-    MyVector<bool> castleQS;
+    MyVector<bool> castleKS; // castling rights (king-side)
+    MyVector<bool> castleQS; // castling rights (queen-side)
 
-    MyVector<MyVector<Figure*>> table;
-    MyVector<HistoryEntry> history;
+    MyVector<MyVector<Figure*>> table; // 8×8 piece pointers
+    MyVector<HistoryEntry> history; // move stack for undo
 
-    Board();
+    Board(); // singleton-use instance()
 
-    Board(const Board&) = delete;
+    Board(const Board&) = delete; // no copies
 
     Board& operator = (const Board&) = delete;
 
     ~Board();
 
-    void free();
+    void free(); // delete pieces + history
 
 public:
 
-    static Board& instance();
+    static Board& instance(); // global board object
 
     void setupInitialPosition();
 
-    bool isValid(const Position& position) const;
+    bool isValid(const Position& position) const; // is inside in the board check
 
-    Figure* at(const Position& position) const;
+    Figure* at(const Position& position) const; // read square
 
-    void set(const Position& position, Figure* figure);
+    void set(const Position& position, Figure* figure); // write square
 
-    void accept(Visitor& visitor) const;
+    void accept(Visitor& visitor) const; 
 
     void clear();
 
@@ -51,11 +51,11 @@ public:
 
     bool canCastleQueenSide(MyColor color) const;
 
-    bool isUnderAttack(const Position& position, MyColor attacker) const;
+    bool isUnderAttack(const Position& position, MyColor attacker) const; // is square attacked
 
-    bool isInCheck(MyColor color) const;
+    bool isInCheck(MyColor color) const; // is king in check
 
-    bool hasLegalMoves(MyColor side);          
+    bool hasLegalMoves(MyColor side); // any moves left    
 
     bool isEnPassantSquare(const Position& cap, MyColor pawnColor) const;
 
