@@ -53,11 +53,11 @@ The goal is to demonstrate that a full chess stack-move generation, alpha-beta s
 
 ## **Limitations**
 * **Material‑only evaluation** – no piece‑square tables, king safety or mobility, the AI compensates with depth and random noise but positional understanding is shallow.
-* **No move ordering / quiescence / transposition table** - alpha‑beta explores many redundant nodes, depths beyond 5 become slow.
+* **No move ordering / quiescence / transposition table** - `alpha‑beta` explores many redundant nodes, depths beyond 5 become slow.
 * **No opening book nor end‑game tablebases** - the engine must "discover" every move, early game looks naive, late end‑gam-es may miss forced mates.
 * **Single‑threaded** - search runs on the GUI thread, large depths can freeze the interface for >1 s.
 * **Windows‑only backend** - tight coupling to Win32 API and GDI+, porting requires replacing window / input / rendering code.
-* **Raw pointers / manual memory** - smart‑pointer migration is planned once STL usage is approved.
+* **Raw pointers / manual memory** - `smart‑pointer` migration is planned once STL usage is approved.
 * **Limited draw detection** - threefold repetition works, 50‑move rule is todo, insufficient‑material check is absent.
 * **No pondering or background thinking** - AI idles during opponent time, search restarts every move.
-* **Binary save only** - no PGN/FEN export yet, saves are engine-specific.
+* **Binary save only** - no `PGN`/`FEN` export yet, saves are engine-specific.
