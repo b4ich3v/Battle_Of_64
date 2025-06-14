@@ -5,10 +5,10 @@
 
 The project aims to prove that a complete chess stack-from bit-level move generation to polished drag‑and‑drop GUI - can be built on bare‑metal C++ while still offering modern conveniences such as adjustable AI strength and save/load support. It also serves as a teaching resource for:
 
-* Search algorithms – a clean α‑β implementation with tunable depth, noise injection and reservoir sampling.
-* Game‑rule enforcement – full FIDE legality including castling state, en passant, promotion choices, stalemate & threefold prevention.
-* Separation of concerns – Visitor pattern decouples core logic from any rendering backend; swapping GUI or AI is trivial.
-* Low‑level Win32 / GDI+ programming – double‑buffering, custom cursors, modal dialogs, GIF animation without frameworks.
+* Search algorithms - a clean α‑β implementation with tunable depth, noise injection and reservoir sampling.
+* Game‑rule enforcement - full FIDE legality including castling state, en passant, promotion choices, stalemate and threefold prevention.
+* Separation of concerns - Visitor pattern decouples core logic from any rendering backend, swapping GUI or AI is trivial.
+* Low‑level Win32 / GDI+ programming - double‑buffering, custom cursors, modal dialogs, GIF animation without frameworks.
 
 * human vs AI and human vs human
 * adjustable difficulty (depth, search noise, randomised move pool)
