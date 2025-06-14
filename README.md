@@ -21,7 +21,7 @@ The goal is to demonstrate that a full chess stack-move generation, alpha-beta s
 | **Rules**   | Full FIDE legality: castling, en passant, promotion, stalemate, threefold prevention |
 | **GUI**     | GDI+ double-buffered board (80 px squares), drag-and-drop moves, animated lobby GIF |
 | **Persistence** | Binary writer/reader save the whole *Board* plus metadata, version header guards incompatible files |
-| **No STL**  | Custom `MyVector`, `MyPair`, manual memory—fits environments where STL is disallowed |
+| **No STL**  | Custom `MyVector`, `MyPair`, manual memory-fits environments where STL is disallowed |
 | **Extensibility**  | Visitor pattern separates engine from rendering; swap GUI (SDL, console) or plug new evaluation without touching engine code |
 ---
 
