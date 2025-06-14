@@ -1,7 +1,7 @@
 # Battle Of 64
 
 ## **Description**
-"Battle Of 64" is a didactic chess engine and graphical client written C++ with zero reliance on the Standard Template Library (STL).  All memory is managed manually through bespoke containers (MyVector, MyPair) and smart, scope‑bound ownership rules, the only external code is GDI+ (bundled with Windows) for sprite blitting plus a thin layer of raw Win32 API calls for the message loop and window creation.
+**Battle Of 64** is a didactic chess engine and graphical client written C++ with zero reliance on the Standard Template Library (STL).  All memory is managed manually through bespoke containers (MyVector, MyPair) and smart, scope‑bound ownership rules, the only external code is GDI+ (bundled with Windows) for sprite blitting plus a thin layer of raw Win32 API calls for the message loop and window creation.
 
 The project aims to prove that a complete chess stack-from bit-level move generation to polished drag‑and‑drop GUI - can be built on bare‑metal C++ while still offering modern conveniences such as adjustable AI strength and save/load support. It also serves as a teaching resource for:
 
