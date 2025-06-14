@@ -20,9 +20,9 @@ class Figure
 {
 protected:
 
-    MyColor color;
-    FigureType type;
-    Position position;
+    MyColor color; // piece side: WHITE or BLACK
+    FigureType type; // enum value KING, KNIGHT and so on
+    Position position; // current square
 
 public:
 
@@ -36,11 +36,11 @@ public:
 
     void setPosition(const Position& position);
 
-    virtual MyVector<Move> generateMoves(const Board& board, const Position& from) const = 0;
+    virtual MyVector<Move> generateMoves(const Board& board, const Position& from) const = 0; // piece logic
 
-    virtual char symbol() const = 0;
+    virtual char symbol() const = 0; // PGN char
 
-    virtual void accept(Visitor& visitor) const = 0;
+    virtual void accept(Visitor& visitor) const = 0; // for draw, UI
 
     virtual ~Figure() = default;
 
