@@ -7,7 +7,7 @@ class BinaryReader: public Reader
 
 private:
 
-    std::ifstream file;
+    std::ifstream file; // RAII stream
 
 public:
 
