@@ -7,7 +7,7 @@ MyVector<Move> Queen::generateMoves(const Board& board,
     const Position& from) const
 {
 
-    return generateSliding(board, from, QUEEN_DIRS);
+    return generateSliding(board, from, QUEEN_DIRS); // 8 directions
 
 }
 
