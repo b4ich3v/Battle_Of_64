@@ -1,7 +1,7 @@
 #include "Figure.h"
 
 Figure::Figure(MyColor color, FigureType type):
-	color(color), type(type) {}
+	color(color), type(type) {} // store immutable attributes
 
 MyColor Figure::getColor() const
 {
