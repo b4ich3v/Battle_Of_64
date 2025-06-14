@@ -7,6 +7,10 @@ The project aims to prove that a complete chess stack-from bit-level move genera
 
 * Search algorithms - a clean α‑β implementation with tunable depth, noise injection and reservoir sampling.
 * Game‑rule enforcement - full FIDE legality including castling state, en passant, promotion choices, stalemate and threefold prevention.
+* Design patterns in practice –
+  * Singleton (Board, GameEngine) centralise state and window management.
+  * Visitor separates rendering from logic (VisitorVisualization), allows future SDL/Console views.
+  * Factory Method (FigureFactory) instantiates pieces without switch‑sprawl.
 * Separation of concerns - Visitor pattern decouples core logic from any rendering backend, swapping GUI or AI is trivial.
 * Low‑level Win32 / GDI+ programming - double‑buffering, custom cursors, modal dialogs, GIF animation without frameworks.
 
