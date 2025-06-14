@@ -27,12 +27,13 @@ GameEngine::GameEngine() :
     mode(0), vizualizator(nullptr), fromFile(false)
 {
 
+    // start GDI+ once for entire app
     GdiplusStartupInput in{};
 
     if (GdiplusStartup(&gdipToken, &in, nullptr) != Ok)
         throw std::runtime_error("Cannot start GDI+");
 
-    vizualizator = new VisitorVisualization(80);
+    vizualizator = new VisitorVisualization(80); // 80 px squares
 
 }
 
@@ -55,12 +56,12 @@ int GameEngine::run(HINSTANCE inst, int nShow)
     hInst = inst;
 
 
-    initGifWindow();
+    initGifWindow(); // lobby first
     ShowWindow(hMainWnd, nShow);
 
     MSG message;
 
-    while (GetMessage(&message, nullptr, 0, 0))
+    while (GetMessage(&message, nullptr, 0, 0)) // standard Win32 pump
     {
 
         TranslateMessage(&message);
@@ -72,7 +73,7 @@ int GameEngine::run(HINSTANCE inst, int nShow)
 
 }
 
-void GameEngine::initGifWindow()
+void GameEngine::initGifWindow() // register and create the lobby window, removes resize buttons
 {
 
     WNDCLASS wc{};
@@ -95,7 +96,7 @@ void GameEngine::initGifWindow()
 
 }
 
-void GameEngine::initChessWindow()
+void GameEngine::initChessWindow() // register and create the chessboard window, 8×8*80 = 640 px wide
 {
 
     WNDCLASS wc{};
@@ -168,7 +169,7 @@ static LRESULT CALLBACK PromoProc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
 
 }
 
-FigureType GameEngine::askPromotion(HWND parent)
+FigureType GameEngine::askPromotion(HWND parent) // simple custom window instead of MessageBox–returns chosen piece
 {
 
     static bool registered = false;
@@ -222,6 +223,11 @@ FigureType GameEngine::askPromotion(HWND parent)
 
 void GameEngine::paintChess(HWND wnd, HDC hdc)
 {
+
+    // draw board via VisitorVisualization
+    // fill right sidebar (image or gray)
+    // if dragging–overlay picked piece under cursor
+    // BitBlt back-buffer to screen
 
     RECT rc; GetClientRect(wnd, &rc);
     int w = rc.right - rc.left;
@@ -333,7 +339,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
         return 0;
 
     }
-    case WM_TIMER:
+    case WM_TIMER: // advance GIF frame and restart timer with per-frame delay
     {
 
         engine.currentFrame = (engine.currentFrame + 1) % engine.frameCount;
@@ -351,7 +357,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
         return 1;
 
     }
-    case WM_PAINT:
+    case WM_PAINT: // paint current GIF frame
     {
 
         PAINTSTRUCT ps;
@@ -363,7 +369,7 @@ LRESULT CALLBACK GameEngine::MainWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM l
         return 0;
 
     }
-    case WM_COMMAND:
+    case WM_COMMAND: // buttons, 1001 = New, 1004 = Load, and so on
     {
 
         switch (LOWORD(wp))
@@ -458,7 +464,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 {
 
     GameEngine& engine = GameEngine::instance();
-    constexpr int SZ = 80;
+    constexpr int SZ = 80; // pixel size of one square
 
     auto showResult = [&](const wchar_t* text)
     {
@@ -471,7 +477,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 
     };
 
-    auto checkGameEnd = [&]() -> bool
+    auto checkGameEnd = [&]() -> bool // lambda, mate, stalemate detection
     {
         Board& bd = Board::instance();
         MyColor side = engine.currentTurn;
@@ -548,7 +554,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
         return 0;
 
     }
-    case WM_LBUTTONDOWN:
+    case WM_LBUTTONDOWN: // start drag if clicking own piece
     {
 
         int x = GET_X_LPARAM(lp), y = GET_Y_LPARAM(lp);
@@ -582,7 +588,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
         return 0;
 
     }
-    case WM_MOUSEMOVE:
+    case WM_MOUSEMOVE: // update drag ghost pos while holding
     {
 
         if (engine.dragging)
@@ -597,7 +603,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
         return 0;
 
     }
-    case WM_LBUTTONUP:
+    case WM_LBUTTONUP: // attempt move, handle promotion, let AI reply, flip side
     {
 
         if (!engine.dragging) return 0;
@@ -790,7 +796,7 @@ LRESULT CALLBACK GameEngine::ChessWndProc(HWND wnd, UINT  msg, WPARAM wp, LPARAM
 
 }
 
-bool GameEngine::saveGame(Writer& writer)
+bool GameEngine::saveGame(Writer& writer) // write "DSQ1" header, mode, side and board data
 {
 
     const char magic[4] = { 'D', 'S', 'Q', '1' };
@@ -807,7 +813,7 @@ bool GameEngine::saveGame(Writer& writer)
 
 }
 
-bool GameEngine::loadGame(Reader& reader)
+bool GameEngine::loadGame(Reader& reader) // read header, reconstruct board, recreate players
 {
 
     char magic[4];
