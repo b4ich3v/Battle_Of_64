@@ -9,29 +9,29 @@
 
 using namespace Gdiplus;
 
-VisitorVisualization::VisitorVisualization(int squareSize):
-    size(squareSize), graphics(nullptr)
+VisitorVisualization::VisitorVisualization(int squareSize): 
+    size(squareSize), graphics(nullptr) 
 {
 
-    loadImages();
+    loadImages(); // cache sprites at startup
 
 }
 
-VisitorVisualization::~VisitorVisualization()
+VisitorVisualization::~VisitorVisualization() 
 {
 
     freeImages();
 
 }
 
-void VisitorVisualization::setGraphics(Graphics* newG)
+void VisitorVisualization::setGraphics(Graphics* newG) 
 {
 
-    graphics = newG;
+    graphics = newG; // called each paint cycle
 
 }
 
-Image* VisitorVisualization::getImage(Piece piece) const
+Image* VisitorVisualization::getImage(Piece piece) const 
 {
 
     auto iter = images.find(piece);
@@ -39,21 +39,56 @@ Image* VisitorVisualization::getImage(Piece piece) const
 
 }
 
-void VisitorVisualization::visit(const Board& board) { drawBoard(); }
+void VisitorVisualization::visit(const Board& board)
+{
 
-void VisitorVisualization::visit(const Rook& rook) { drawFigure(rook); }
+    drawBoard(); 
 
-void VisitorVisualization::visit(const Knight& knight) { drawFigure(knight); }
+}
 
-void VisitorVisualization::visit(const Bishop& bishop) { drawFigure(bishop); }
+void VisitorVisualization::visit(const Rook& rook) 
+{
 
-void VisitorVisualization::visit(const Queen& queen) { drawFigure(queen); }
+    drawFigure(rook);
 
-void VisitorVisualization::visit(const King& king) { drawFigure(king); }
+}
 
-void VisitorVisualization::visit(const Pawn& pawn) { drawFigure(pawn); }
+void VisitorVisualization::visit(const Knight& knight) 
+{
 
-void VisitorVisualization::loadImages()
+    drawFigure(knight);
+
+}
+
+void VisitorVisualization::visit(const Bishop& bishop) 
+{
+
+    drawFigure(bishop);
+
+}
+
+void VisitorVisualization::visit(const Queen& queen) 
+{
+
+    drawFigure(queen);
+
+}
+
+void VisitorVisualization::visit(const King& king) 
+{
+
+    drawFigure(king);
+
+}
+
+void VisitorVisualization::visit(const Pawn& pawn) 
+{
+
+    drawFigure(pawn);
+
+}
+
+void VisitorVisualization::loadImages() // map enum to PNG; PNG names are hard-coded
 {
 
     images[Piece::WP] = Image::FromFile(L"pawn.png");
@@ -79,10 +114,10 @@ void VisitorVisualization::freeImages()
 
 }
 
-Piece VisitorVisualization::figureToPiece(const Figure& figure) const
+Piece VisitorVisualization::figureToPiece(const Figure& figure) const 
 {
 
-    switch (figure.getType())
+    switch (figure.getType()) 
     {
 
     case FigureType::PAWN: return figure.getColor() == MyColor::WHITE ? Piece::WP : Piece::BP;
@@ -97,10 +132,10 @@ Piece VisitorVisualization::figureToPiece(const Figure& figure) const
 
 }
 
-void VisitorVisualization::drawBoard()
+void VisitorVisualization::drawBoard() 
 {
 
-    if (!graphics) return;
+    if (!graphics) return; // guard
 
     for (int currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
     {
@@ -108,6 +143,7 @@ void VisitorVisualization::drawBoard()
         for (int currentColIndex = 0; currentColIndex < COLS_COUNT; currentColIndex++)
         {
 
+            // light, dark squares
             Color color = ((currentRowIndex + currentColIndex) % 2 == 0) ? Color(255, 240, 217, 181) : Color(255, 181, 136, 99);
             SolidBrush brush(color);
             graphics->FillRectangle(&brush, currentColIndex * size, currentRowIndex * size, size, size);
@@ -124,7 +160,7 @@ void VisitorVisualization::drawFigure(const Figure& figure)
     if (!graphics) return;
 
     Piece piece = figureToPiece(figure);
-    Image* image = getImage(piece);
+    Image* image = getImage(piece); // sprite lookup
 
     if (!image) return;
 
