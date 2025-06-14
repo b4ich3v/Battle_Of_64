@@ -6,6 +6,6 @@ Position::Position(int8_t row, int8_t col):
 bool Position::operator == (Position const& other) const 
 {
 
-    return row == other.row && col == other.col;
+    return row == other.row && col == other.col; // compare coords
 
 }
