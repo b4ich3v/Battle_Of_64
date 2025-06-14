@@ -1,15 +1,18 @@
 #include "HumanPlayer.h"
 
-Move HumanPlayer::getMove(Board& board, MyColor color)
+Move HumanPlayer::getMove(Board& board, MyColor color) 
 {
 
-	return pending;
+	// no calculation—simply return what was queued
+	return pending; 
 
 }
 
-void HumanPlayer::setPendingMove(const Move& move)
+void HumanPlayer::setPendingMove(const Move& move) 
 {
 
-	pending = move;
+	// cache until engine requests it
+	pending = move; 
 
 }
+
