@@ -27,6 +27,7 @@ The goal is to demonstrate that a full chess stack-move generation, alpha-beta s
 | **Persistence** | Binary writer/reader save the whole *Board* plus metadata, version header guards incompatible files |
 | **No STL**  | Custom `MyVector`, `MyPair`, manual memory-fits environments where STL is disallowed |
 | **Extensibility**  | Visitor pattern separates engine from rendering; swap GUI (SDL, console) or plug new evaluation without touching engine code |
+
 ---
 
 ## **Game Rules and Modes**
@@ -48,4 +49,4 @@ The goal is to demonstrate that a full chess stack-move generation, alpha-beta s
 | **Hard Bot**  | Human vs AI (depth 5, no noise) | White = user | 
 | **AI Mirror**  | AI vs AI demo (toggle with F5) | N/A |
 
-
+---
