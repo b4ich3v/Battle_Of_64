@@ -6,7 +6,7 @@ class BinaryWriter: public Writer
 {
 private:
 
-    std::ofstream file;
+    std::ofstream file; // RAII stream
 
 public:
 
