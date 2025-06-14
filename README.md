@@ -20,7 +20,8 @@ The goal is to demonstrate that a full chess stack—move generation, alpha–be
 | **Persistence** | Binary writer/reader save the whole *Board* + metadata; version header guards incompatible files |
 | **No STL**  | Custom `MyVector`, `MyPair`, manual memory—fits environments where STL is disallowed |
 
+| **Build**  | One‑liner compile with MinGW or MSVC – no external libs beyond built‑in GDI+; optional CMake script included |
+| **Extensibility**  | Visitor pattern separates engine from rendering; swap GUI (SDL, console) or plug new evaluation without touching engine code |
 ---
 
-## 3  Folder Structure
 
