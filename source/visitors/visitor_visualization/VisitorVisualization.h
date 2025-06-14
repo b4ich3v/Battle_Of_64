@@ -11,29 +11,29 @@ class VisitorVisualization: public Visitor
 private:
 
 
-    std::unordered_map<Piece, Gdiplus::Image*> images;
-    Gdiplus::Graphics* graphics;
-    int size = 0;
+    std::unordered_map<Piece, Gdiplus::Image*> images; // sprite cache
+    Gdiplus::Graphics* graphics; // current target
+    int size = 0; // square-pixel side
 
-    void loadImages();
+    void loadImages(); // PNG to Image* once
 
-    void freeImages();
+    void freeImages(); // delete all on shutdown
 
-    void drawBoard();
+    void drawBoard(); // draw 8×8 background
 
-    void drawFigure(const Figure& figure);
+    void drawFigure(const Figure& figure); // blit one sprite
 
 public:
 
-    explicit VisitorVisualization(int squareSize = 80);
+    explicit VisitorVisualization(int squareSize = 80); // px per square
 
     ~VisitorVisualization();
 
-    void setGraphics(Gdiplus::Graphics* graphics);
+    void setGraphics(Gdiplus::Graphics* graphics); // choose target surface
 
-    Gdiplus::Image* getImage(Piece piece) const;
+    Gdiplus::Image* getImage(Piece piece) const; // lookup sprite
 
-    Piece figureToPiece(const Figure& figure) const;
+    Piece figureToPiece(const Figure& figure) const; // Figure to enum helper
 
     void visit(const Board& board) override;
 
