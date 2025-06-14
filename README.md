@@ -14,7 +14,7 @@ The goal is to demonstrate that a full chess stack-move generation, alpha-beta s
 ## Key Features
 | Area        | Details |
 |-------------|---------|
-| **Engine**  | α–β search (depth 1 – 5), centipawn evaluation, optional noise and reservoir-sampling for *human-like* mistakes |
+| **Engine**  | α-β search (depth 1 – 5), centipawn evaluation, optional noise and reservoir-sampling for *human-like* mistakes |
 | **Rules**   | Full FIDE legality: castling, en passant, promotion, stalemate, threefold prevention |
 | **GUI**     | GDI+ double-buffered board (80 px squares), drag-and-drop moves, animated lobby GIF |
 | **Persistence** | Binary writer/reader save the whole *Board* plus metadata, version header guards incompatible files |
