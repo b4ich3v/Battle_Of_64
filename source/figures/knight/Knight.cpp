@@ -8,9 +8,9 @@ MyVector<Move> Knight::generateMoves(const Board& board,
     const Position& from) const
 {
 
-    MyVector<Move> move;
+    MyVector<Move> move; // result container
 
-    for (int i = 0; i < ROWS_COUNT; i++)
+    for (int i = 0; i < ROWS_COUNT; i++) // 8 L-jumps
     {
 
         int8_t deltaRow = KNIGHT_DIRS[i].first;
@@ -23,7 +23,7 @@ MyVector<Move> Knight::generateMoves(const Board& board,
 
         const Figure* currentFigure = board.at(to);
 
-        if (currentFigure == nullptr || currentFigure->getColor() != getColor())
+        if (currentFigure == nullptr || currentFigure->getColor() != getColor()) // empty or enemy
             move.push_back(Move(from, to));
 
     }
@@ -42,6 +42,6 @@ void Knight::accept(Visitor& visitor) const
 char Knight::symbol() const
 {
 
-    return (color == MyColor::WHITE ? 'N' : 'n');
+    return (color == MyColor::WHITE ? 'N' : 'n'); // PGN letter
 
 }
