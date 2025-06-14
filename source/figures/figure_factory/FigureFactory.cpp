@@ -9,6 +9,7 @@
 Figure* FigureFactory::create(FigureType type, MyColor color) 
 {
 
+    // single switch to new concrete piece
     switch (type) 
     {
 
