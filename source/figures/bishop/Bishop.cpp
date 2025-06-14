@@ -7,7 +7,7 @@ MyVector<Move> Bishop::generateMoves(const Board& board,
     const Position& from) const
 {
     
-    return generateSliding(board, from, DIAGONAL_DIRS);
+    return generateSliding(board, from, DIAGONAL_DIRS); // reuse helper
 
 }
 
