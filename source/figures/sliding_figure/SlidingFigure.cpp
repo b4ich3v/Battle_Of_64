@@ -10,7 +10,7 @@ MyVector<Move> SlidingFigure::generateSliding(const Board& board, const Position
 
     MyVector<Move> result;
 
-    for (size_t i = 0; i < directions.size(); i++)
+    for (size_t i = 0; i < directions.size(); i++) // each compass ray
     {
 
         int deltaRow = directions[i].first;
@@ -24,14 +24,15 @@ MyVector<Move> SlidingFigure::generateSliding(const Board& board, const Position
             currentPosition.row += (int8_t)(deltaRow);
             currentPosition.col += (int8_t)(deltaCol);
 
-            if (!board.isValid(currentPosition)) break;
+            if (!board.isValid(currentPosition)) break; // outside board
 
             const Figure* target = board.at(currentPosition);
 
-            if (target == nullptr || target->getColor() != getColor())
+            if (target == nullptr || target->getColor() != getColor()) // empty or capture
                 result.push_back(Move(from, currentPosition));   
 
-            if (target != nullptr) break;           
+            if (target != nullptr) break; // stop at first piece
+
         }
 
     }
@@ -40,6 +41,7 @@ MyVector<Move> SlidingFigure::generateSliding(const Board& board, const Position
 
 }
 
+// base class returns empty-concrete piece must call generateSliding()
 MyVector<Move> SlidingFigure::generateMoves(const Board&,
     const Position&) const
 {
