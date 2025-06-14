@@ -7,7 +7,7 @@
 * adjustable difficulty (depth, search noise, randomised move pool)
 * basic save/load of the current game state (`.dsq`)
 
-The goal is to demonstrate that a full chess stack—move generation, alpha–beta search, GUI and persistence—can live on pure, low-level C++.
+The goal is to demonstrate that a full chess stack-move generation, alpha-beta search, GUI and persistence - can live on pure, low-level C++.
 
 ---
 
