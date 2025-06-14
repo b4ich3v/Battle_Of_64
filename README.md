@@ -1,13 +1,9 @@
-# DeathSquare Chess Engine
+# Battle Of 64
 
-> **Minimal-STL chess project for Windows**
+## **Description**
+"Battle Of 64" is a didactic chess engine and graphical client written in C++.  The only external code is GDI+ for rendering sprites and a handful of Win32 calls for the window loop. It supports:
 
----
-
-## 1  Project Overview
-DeathSquare is a didactic chess engine and graphical client written in C++ **without the Standard Template Library**.*¹*  The only external code is GDI+ for rendering sprites and a handful of Win32 calls for the window loop.  It supports:
-
-* human vs AI & human vs human
+* human vs AI and human vs human
 * adjustable difficulty (depth, search noise, randomised move pool)
 * basic save/load of the current game state (`.dsq`)
 
