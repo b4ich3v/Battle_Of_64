@@ -52,7 +52,7 @@ The goal is to demonstrate that a full chess stack-move generation, alpha-beta s
 ---
 
 ## **Limitations**
-* Material‑only evaluation – no piece‑square tables, king safety or mobility; the AI compensates with depth and random noise but positional understanding is shallow.
+* **Material‑only evaluation** – no piece‑square tables, king safety or mobility, the AI compensates with depth and random noise but positional understanding is shallow.
 * **No move ordering / quiescence / transposition table** - alpha‑beta explores many redundant nodes, depths beyond 5 become slow.
 * **No opening book nor end‑game tablebases** - the engine must "discover" every move, early game looks naive, late end‑gam-es may miss forced mates.
 * **Single‑threaded** - search runs on the GUI thread, large depths can freeze the interface for >1 s.
