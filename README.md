@@ -18,7 +18,7 @@ The goal is to demonstrate that a full chess stack-move generation, alpha-beta s
 
 ---
 
-## Key Features
+### **Key Features**
 | Area        | Details |
 |-------------|---------|
 | **Engine**  | α-β search (depth 1 – 5), centipawn evaluation, optional noise and reservoir-sampling for *human-like* mistakes |
@@ -28,5 +28,24 @@ The goal is to demonstrate that a full chess stack-move generation, alpha-beta s
 | **No STL**  | Custom `MyVector`, `MyPair`, manual memory-fits environments where STL is disallowed |
 | **Extensibility**  | Visitor pattern separates engine from rendering; swap GUI (SDL, console) or plug new evaluation without touching engine code |
 ---
+
+## **Game Rules and Modes**
+
+### **Rule Enforcement**
+* **Complete FIDE rule set** – castling, en passant, promotion, stalemate, checkmate, threefold‑repetition prevention (50‑move rule planned).
+* **Legality guard** – every candidate passes `isLegalMove`; the king is never left in check.
+* **Castling rights** tracking – flags updated on king/rook moves and restored on undo.
+* **En passant squares** – generated only on double‑pawn pushes and valid for exactly one reply.
+* **Promotion dialog** – modal window lets you pick Queen, Rook, Bishop or Knight.
+
+### **Play Modes**
+| Area        | Description | Default Side  |
+|-------------|---------|---------|
+| **PvP**  | Human vs Human (same PC) | White and Black = users |
+| **Beginner Bot**   | Human vs AI (depth 1 + noise) | White = user |
+| **Easy Bot**     | Human vs AI (depth 2) | White = user |
+| **Medium Bot** | Human vs AI (depth 3) | White = user | 
+| **Hard Bot**  | Human vs AI (depth 5, no noise) | White = user | 
+| **AI Mirror**  | AI vs AI demo (toggle with F5) | N/A |
 
 
