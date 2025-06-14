@@ -5,7 +5,7 @@ class Knight: public Figure
 {
 public:
 
-    explicit Knight(MyColor color);
+    explicit Knight(MyColor color); // ctor just forwards color
 
     MyVector<Move> generateMoves(const Board& board, const Position& from) const override;
 
