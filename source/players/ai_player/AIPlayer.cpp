@@ -4,7 +4,73 @@ Move AIPlayer::lastWhite;
 
 Move AIPlayer::lastBlack;
 
-AIPlayer::AIPlayer(int depth): maxDepth(depth) {}
+AIPlayer::AIPlayer(Difficulty difficulty): maxDepth((int)(difficulty))
+{
+
+    static bool seeded = false;
+
+    if (!seeded)
+    {
+
+        // lightweight seed - uses two addresses
+        unsigned long long pObj = (unsigned long long)this;
+        unsigned long long pVar = (unsigned long long) & seeded;
+
+        // fold 64 to 32
+        unsigned a = (unsigned)(pObj ^ (pObj >> OBJ_HIGH_SHIFT));
+        unsigned b = (unsigned)(pVar ^ (pVar >> VAR_HIGH_SHIFT));
+        unsigned seed = (a << MIX_LEFT_SHIFT) ^ (b >> MIX_RIGHT_SHIFT) ^ XOR_CONST;
+
+        // mini xorshift
+        seed ^= seed << XORSHIFT_L;
+        seed ^= seed >> XORSHIFT_R;
+
+        srand(seed);
+        seeded = true;
+
+    }
+
+    // map difficulty to noise, pool width
+    switch (difficulty)
+    {
+
+    case Difficulty::Beginner:
+    {
+
+        noiseRange = NOISE_BEGINNER;
+        marginCp = MARGIN_BEGINNER;
+        break;
+
+    }
+    case Difficulty::Easy:
+    {
+
+        noiseRange = NOISE_EASY;
+        marginCp = MARGIN_EASY;
+        break;
+
+    }
+    case Difficulty::Medium:
+    {
+
+        noiseRange = NOISE_MEDIUM;
+        marginCp = MARGIN_MEDIUM;
+        break;
+
+    }
+    case Difficulty::Hard:
+    {
+
+        noiseRange = NOISE_HARD;
+        marginCp = MARGIN_HARD;
+        break;
+
+    }
+    default: break;
+
+    }
+
+}
 
 int AIPlayer::value(FigureType type)
 {
@@ -22,7 +88,6 @@ int AIPlayer::value(FigureType type)
     }
 
 }
-
 
 int AIPlayer::evaluate(const Board& board, MyColor side) const
 {
@@ -48,6 +113,9 @@ int AIPlayer::evaluate(const Board& board, MyColor side) const
 
     }
 
+    // material loop here
+    score += (noiseRange ? (rand() % (2 * noiseRange + 1) - noiseRange) : 0);
+
     return score;
 
 }
@@ -55,7 +123,7 @@ int AIPlayer::evaluate(const Board& board, MyColor side) const
 int AIPlayer::search(Board& board, int depth, int alpha, int beta, MyColor side)
 {
 
-    if (depth == 0) return evaluate(board, side);
+    if (depth == 0) return evaluate(board, side); // leaf node
 
     bool anyMove = false;
     int best = MIN_SCORE;
@@ -87,7 +155,7 @@ int AIPlayer::search(Board& board, int depth, int alpha, int beta, MyColor side)
 
                     if (score > best)  best = score;
                     if (score > alpha) alpha = score;
-                    if (alpha >= beta) return alpha;
+                    if (alpha >= beta) return alpha; // alpha-beta cut-off
 
                 }
 
@@ -97,7 +165,7 @@ int AIPlayer::search(Board& board, int depth, int alpha, int beta, MyColor side)
 
     }
 
-    if (!anyMove) return evaluate(board, side);
+    if (!anyMove) return evaluate(board, side); // checkmate, stalemate
 
     return best;
 
@@ -110,6 +178,7 @@ Move AIPlayer::getMove(Board& board, MyColor side)
     int bestScore = MIN_SCORE;
     int alpha = MIN_SCORE;
     int beta = BETA_INIT;
+    int candidateCount = 0; // for reservoir sampling
 
     const Move& last = (side == MyColor::WHITE ? lastWhite : lastBlack);
 
@@ -142,11 +211,20 @@ Move AIPlayer::getMove(Board& board, MyColor side)
                 int score = -search(board, maxDepth - 1, -beta, -alpha, oppositeColor(side));
                 board.undoMove(currentMove);
 
-                if (score > bestScore) 
+                if (score > bestScore) // new leader
                 {
 
                     bestScore = score;
                     bestMove = currentMove;
+                    candidateCount = 1;    
+           
+                }
+                else if (bestScore - score <= marginCp) // within pool
+                {
+                    candidateCount += 1;
+                    
+                    if (rand() % candidateCount == 0)
+                        bestMove = currentMove;
 
                 }
 
@@ -161,7 +239,7 @@ Move AIPlayer::getMove(Board& board, MyColor side)
     if (side == MyColor::WHITE) lastWhite = bestMove;
     else lastBlack = bestMove;
 
-    return bestMove;
+    return bestMove; // send to GUI, engine
 
 }
 
