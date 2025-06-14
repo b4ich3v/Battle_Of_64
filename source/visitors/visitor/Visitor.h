@@ -12,7 +12,7 @@ class Visitor
 {
 public:
 
-    virtual void visit(const Board& board) = 0;
+    virtual void visit(const Board& board) = 0; // top–level scene (full board)
 
     virtual void visit(const Rook& rook) = 0;
 
@@ -26,6 +26,6 @@ public:
 
     virtual void visit(const Pawn& pawn) = 0;
 
-    virtual ~Visitor() = default;
+    virtual ~Visitor() = default; // polymorphic delete
 
 };
