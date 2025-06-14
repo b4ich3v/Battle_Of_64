@@ -10,7 +10,7 @@ MyVector<Move> King::generateMoves(const Board& board,
 
     MyVector<Move> move;
 
-    for (size_t i = 0; i < ROWS_COUNT; i++)
+    for (size_t i = 0; i < ROWS_COUNT; i++) // 8 king steps
     {
 
         Position to{ (int8_t)(from.row + KING_DIRS[i].first),
@@ -25,7 +25,7 @@ MyVector<Move> King::generateMoves(const Board& board,
 
     }
 
-    if (board.canCastleKingSide(getColor())) 
+    if (board.canCastleKingSide(getColor())) // O-O
     {
 
         Position kingSide{ from.row, from.col + KING_CASTLE_SHIFT };
@@ -33,7 +33,7 @@ MyVector<Move> King::generateMoves(const Board& board,
 
     }
 
-    if (board.canCastleQueenSide(getColor())) 
+    if (board.canCastleQueenSide(getColor())) // O-O-O
     {
 
         Position queenSide{ from.row, from.col - KING_CASTLE_SHIFT };
@@ -55,6 +55,6 @@ void King::accept(Visitor& visitor) const
 char King::symbol() const
 {
 
-    return (getColor() == MyColor::WHITE ? 'K' : 'k');
+    return (getColor() == MyColor::WHITE ? 'K' : 'k'); // PGN letter
 
 }
