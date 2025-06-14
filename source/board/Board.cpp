@@ -8,7 +8,7 @@
 #include "Types.h"
 #include "FigureFactory.h"
 
-Board::Board(): table(), history()
+Board::Board(): table(), history() // build empty 8×8 grid (nullptrs)
 {
 
     for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
@@ -39,6 +39,7 @@ Board::~Board()
 Board& Board::instance()
 {
 
+    // Meyers singleton-one board for entire program
     static Board inst;
     return inst;
 
@@ -89,7 +90,7 @@ void Board::accept(Visitor& visitor) const
 
 }
 
-void Board::setupInitialPosition()
+void Board::setupInitialPosition() // clear board and place standard start pieces
 {
 
     for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
@@ -210,7 +211,7 @@ void Board::clear()
 
 }
 
-void Board::applyMove(const Move& move)
+void Board::applyMove(const Move& move) // execute move, update castle rights, push HistoryEntry
 {
 
     Figure* captured = nullptr;
@@ -291,7 +292,7 @@ void Board::applyMove(const Move& move)
 
 }
 
-void Board::undoMove(const Move&)
+void Board::undoMove(const Move&) // pop last HistoryEntry and roll everything back
 {
 
     HistoryEntry entry = popHistory();
@@ -309,7 +310,7 @@ void Board::pushHistory(HistoryEntry entry)
 
 }
 
-bool Board::canCastleKingSide(MyColor color) const
+bool Board::canCastleKingSide(MyColor color) const // static tests only-no check/attack verification
 {
 
     int index = (int)(color);
@@ -347,7 +348,7 @@ bool Board::canCastleQueenSide(MyColor color) const
 
 }
 
-bool Board::isUnderAttack(const Position& position, MyColor attacker) const
+bool Board::isUnderAttack(const Position& position, MyColor attacker) const // brute-force scan of every enemy piece
 {
 
     for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
@@ -430,7 +431,7 @@ bool Board::isEnPassantSquare(const Position& cap, MyColor pawnColor) const
 
 }
 
-MyVector<Move> Board::generateAllLegalMoves(MyColor side)
+MyVector<Move> Board::generateAllLegalMoves(MyColor side) // loop every friendly piece, keep moves that pass isLegalMove()
 {
 
     MyVector<Move> allMoves;
@@ -501,6 +502,7 @@ bool Board::isLegalMove(const Move& move, MyColor side)
 
     }
 
+    // quick special-case filters, then "make-and-break" test
     applyMove(move);
     bool isValid = !isInCheck(side);
     undoMove(move);
@@ -532,7 +534,7 @@ HistoryEntry Board::popHistory()
 
 }
 
-void Board::serialize(Writer& writer) const
+void Board::serialize(Writer& writer) const // 64 bytes to the stream
 {
 
     for (size_t currentRowIndex = 0; currentRowIndex < ROWS_COUNT; currentRowIndex++)
@@ -550,7 +552,7 @@ void Board::serialize(Writer& writer) const
 
 }
 
-void Board::deserialize(Reader& reader)
+void Board::deserialize(Reader& reader) // stream to the board
 {
 
     clear();
