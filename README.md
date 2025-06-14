@@ -63,3 +63,17 @@ Although it boots and you can finish a game, **Battle Of 64 is** still very mu
 * **Limited draw detection** - threefold repetition works, 50‑move rule is todo, insufficient‑material check is absent.
 * **No pondering or background thinking** - AI idles during opponent time, search restarts every move.
 * **Binary save only** - no `PGN`/`FEN` export yet, saves are engine-specific.
+
+---
+
+<br><br>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <img src="screenshots/screenshot1.png" alt="Image 1" width="1000"/>
+</div>
+<br><br>
+<br><br>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <img src="screenshots/screenshot2.png" alt="Image 1" width="1000"/>
+</div>
+<br><br>
+<br><br>
