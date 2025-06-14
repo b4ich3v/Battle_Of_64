@@ -10,10 +10,6 @@ The project aims to prove that a complete chess stack-from bit-level move genera
 * Separation of concerns - Visitor pattern decouples core logic from any rendering backend, swapping GUI or AI is trivial.
 * Low‑level Win32 / GDI+ programming - double‑buffering, custom cursors, modal dialogs, GIF animation without frameworks.
 
-* human vs AI and human vs human
-* adjustable difficulty (depth, search noise, randomised move pool)
-* basic save/load of the current game state (`.dsq`)
-
 The goal is to demonstrate that a full chess stack-move generation, alpha-beta search, GUI and persistence - can live on pure, low-level C++.
 
 ---
