@@ -11,7 +11,7 @@ The goal is to demonstrate that a full chess stack—move generation, alpha–be
 
 ---
 
-## 2  Key Features
+## Key Features
 | Area        | Details |
 |-------------|---------|
 | **Engine**  | α–β search (depth 1 – 5), centipawn evaluation, optional noise and reservoir-sampling for *human-like* mistakes |
