@@ -3,6 +3,28 @@
 #include "MyVector.hpp"
 #pragma once
 
+static constexpr int NOISE_BEGINNER = 50;
+static constexpr int MARGIN_BEGINNER = 200;
+
+static constexpr int NOISE_EASY = 25;
+static constexpr int MARGIN_EASY = 100;
+
+static constexpr int NOISE_MEDIUM = 10;
+static constexpr int MARGIN_MEDIUM = 50;
+
+static constexpr int NOISE_HARD = 0;
+static constexpr int MARGIN_HARD = 0;
+
+static constexpr unsigned OBJ_HIGH_SHIFT = 32U;
+static constexpr unsigned VAR_HIGH_SHIFT = 32U;
+
+static constexpr unsigned MIX_LEFT_SHIFT = 16U;
+static constexpr unsigned MIX_RIGHT_SHIFT = 3U;
+static constexpr unsigned XOR_CONST = 0xA5A5U;
+
+static constexpr unsigned XORSHIFT_L = 13U;
+static constexpr unsigned XORSHIFT_R = 17U;
+
 static constexpr int ROWS_COUNT = 8;
 static constexpr int COLS_COUNT = 8;
 static constexpr int BOARD_SIZE = 8;
@@ -103,6 +125,16 @@ enum class Piece: uint8_t
     NONE,
     WP, WN, WB, WR, WQ, WK,
     BP, BN, BB, BR, BQ, BK
+
+};
+
+enum class Difficulty: uint8_t
+{
+
+    Beginner = 1,
+    Easy = 2, 
+    Medium = 3, 
+    Hard = 5 
 
 };
 
